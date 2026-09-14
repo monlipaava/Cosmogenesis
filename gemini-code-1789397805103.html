@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosmogenesis — from quarks to the Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0D18;
+    --bg-2:#0E1220;
+    --panel:#131829;
+    --panel-2:#1A2138;
+    --border:#262E4C;
+    --text:#EAE8F3;
+    --text-dim:#8991AE;
+    --text-dimmer:#5B6485;
+
+    --era0:#9B8CFB;
+    --era1:#F2617A;
+    --era2:#F2C14E;
+    --era3:#EC8B45;
+    --era4:#4FC9A8;
+    --era5:#C9CEEA;
+
+    --radius:12px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(155,140,251,0.14), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(79,201,168,0.08), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Space Grotesk', system-ui, sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit;}
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+  }
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--border);
+    padding-bottom:20px;
+  }
+  header h1{
+    font-size:28px;
+    font-weight:700;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    color:var(--text-dim);
+    font-size:14.5px;
+    max-width:46ch;
+    line-height:1.5;
+  }
+  .progress-block{
+    min-width:220px;
+    text-align:right;
+  }
+  .progress-count{
+    font-size:15px;
+    font-weight:600;
+    color:var(--era2);
+    margin-bottom:6px;
+  }
+  .progress-count span{color:var(--text-dim); font-weight:400;}
+  .progress-bar{
+    height:6px;
+    background:var(--panel-2);
+    border-radius:99px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--era0), var(--era2));
+    width:0%;
+    transition:width .5s ease;
+  }
+
+  .lab{
+    position:sticky;
+    top:12px;
+    z-index:20;
+    background:linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    margin-bottom:26px;
+    box-shadow:0 12px 30px -14px rgba(0,0,0,0.6);
+  }
+  .lab-inner{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:26px;
+    flex-wrap:wrap;
+  }
+  .slot{
+    width:92px;
+    height:92px;
+    border-radius:var(--radius);
+    border:1.5px dashed var(--text-dimmer);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:2px;
+    color:var(--text-dimmer);
+    font-size:12px;
+    cursor:pointer;
+    transition:border-color .15s, transform .15s;
+    background:rgba(255,255,255,0.02);
+    text-align:center;
+    padding:4px;
+  }
+  .slot.filled{
+    border-style:solid;
+    color:var(--text);
+  }
+  .slot .glyph{font-size:26px; line-height:1;}
+
+  .reactor{
+    position:relative;
+    width:64px;
+    height:64px;
+    flex:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .reactor-core{
+    position:relative;
+    z-index:2;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    font-weight:600;
+    color:var(--text-dimmer);
+    border:1.5px dashed var(--text-dimmer);
+    background:rgba(255,255,255,0.02);
+    transition:background .25s ease, border-color .25s ease, color .25s ease;
+  }
+  .reactor.combining .reactor-core{
+    border-style:solid;
+    border-color:var(--era2);
+    color:var(--era2);
+    animation:spin-pulse .6s linear infinite;
+  }
+  .reactor.success .reactor-core{
+    border-color:var(--result-color, var(--era2));
+    background:var(--result-color, var(--era2));
+    color:#0A0D18;
+    animation:reveal-pop .6s cubic-bezier(.22,.85,.3,1.35);
+  }
+  .reactor.fail .reactor-core{
+    border-color:var(--era1);
+    color:var(--era1);
+    animation:shake-core .4s;
+  }
+  @keyframes spin-pulse{
+    0%{transform:rotate(0deg) scale(1);}
+    50%{transform:rotate(180deg) scale(1.15);}
+    100%{transform:rotate(360deg) scale(1);}
+  }
+  @keyframes reveal-pop{
+    0%{transform:scale(0.3) rotate(-25deg); opacity:0;}
+    55%{transform:scale(1.3) rotate(8deg); opacity:1;}
+    78%{transform:scale(0.92) rotate(-3deg);}
+    100%{transform:scale(1) rotate(0deg);}
+  }
+  @keyframes shake-core{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-5px) rotate(-5deg);}
+    40%{transform:translateX(5px) rotate(5deg);}
+    60%{transform:translateX(-3px);}
+    80%{transform:translateX(3px);}
+  }
+  .ring{
+    position:absolute;
+    top:50%; left:50%;
+    width:64px; height:64px;
+    margin:-32px 0 0 -32px;
+    border-radius:50%;
+    border:2px solid var(--result-color, var(--era2));
+    opacity:0;
+    pointer-events:none;
+    z-index:1;
+  }
+  .ring.animate{
+    animation:ring-burst .8s ease-out forwards;
+  }
+  @keyframes ring-burst{
+    0%{transform:scale(0.6); opacity:.9;}
+    100%{transform:scale(2.8); opacity:0;}
+  }
+
+  .lab-result{
+    max-width:480px;
+    margin:14px auto 0;
+    text-align:center;
+    font-size:13.5px;
+    color:var(--text-dim);
+    line-height:1.4;
+    min-height:20px;
+  }
+  .lab-result.ok{color:var(--era4);}
+  .lab-result.bad{color:var(--era1);}
+  .lab-result.hint{color:var(--era2); font-weight:600;}
+
+  .lab-actions{
+    text-align:center;
+    margin-top:12px;
+  }
+  .btn{
+    font-family:inherit;
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    font-size:12.5px;
+    padding:6px 14px;
+    border-radius:99px;
+    cursor:pointer;
+    transition:border-color .15s, color .15s;
+  }
+  .btn:hover{border-color:var(--text-dim); color:var(--text);}
+  .btn.danger:hover{border-color:var(--era1); color:var(--era1);}
+
+  .era{margin-bottom:30px;}
+  .era-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  .era-dot{
+    width:9px; height:9px; border-radius:50%;
+    flex:none;
+  }
+  .era-head h2{
+    font-size:15px;
+    font-weight:600;
+    margin:0;
+  }
+  .era-head .count{
+    font-size:12.5px;
+    color:var(--text-dimmer);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(96px, 1fr));
+    gap:10px;
+  }
+
+  .tile{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:12px 8px 10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    text-align:center;
+    transition:transform .12s ease, border-color .12s ease, background .12s ease;
+    user-select:none;
+  }
+  .tile:hover{transform:translateY(-2px); border-color:var(--text-dim);}
+  .tile:active{transform:translateY(0);}
+  .tile.selected{
+    border-color:var(--era2);
+    background:var(--panel-2);
+  }
+  .tile .badge{
+    width:38px; height:38px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px;
+    font-weight:600;
+    color:#0A0D18;
+  }
+  .tile .name{
+    font-size:11.5px;
+    color:var(--text-dim);
+    line-height:1.25;
+  }
+  .tile.new-tile{
+    animation:tile-reveal .7s cubic-bezier(.22,.85,.3,1.2);
+  }
+  @keyframes tile-reveal{
+    0%{transform:scale(0.4) translateY(14px); opacity:0;}
+    55%{transform:scale(1.14) translateY(-4px); opacity:1;}
+    100%{transform:scale(1) translateY(0);}
+  }
+
+  .locked{
+    border:1px dashed var(--border);
+    background:transparent;
+    opacity:.55;
+  }
+  .locked .badge{
+    background:var(--panel-2);
+    color:var(--text-dimmer);
+    border:1px dashed var(--border);
+  }
+  .locked .name{color:var(--text-dimmer);}
+
+  .shake{animation:shake .4s;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-6px);}
+    40%{transform:translateX(6px);}
+    60%{transform:translateX(-4px);}
+    80%{transform:translateX(4px);}
+  }
+
+  footer{
+    margin-top:20px;
+    text-align:center;
+    color:var(--text-dimmer);
+    font-size:12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Cosmogenesis</h1>
+      <p>Build the Universe from scratch — just as showcased at CERN: from quarks and photons to stars, planets, and life. Click on two elements to combine them.</p>
+    </div>
+    <div class="progress-block">
+      <div class="progress-count"><span id="discCount">7</span><span> / <span id="totalCount">41</span> unlocked</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </header>
+
+  <div class="lab">
+    <div class="lab-inner">
+      <div class="slot" id="slot0" tabindex="0" role="button" aria-label="Slot 1">
+        <span class="glyph">?</span>
+      </div>
+      <div class="reactor" id="reactor">
+        <div class="reactor-core" id="reactorCore"><span>+</span></div>
+      </div>
+      <div class="slot" id="slot1" tabindex="0" role="button" aria-label="Slot 2">
+        <span class="glyph">?</span>
+      </div>
+    </div>
+    <div class="lab-result" id="labResult">Choose two elements below</div>
+    <div class="lab-actions">
+      <button class="btn" id="clearBtn">Clear Slots</button>
+      <button class="btn danger" id="resetBtn">Reset Progress</button>
+    </div>
+  </div>
+
+  <div id="eras"></div>
+
+  <footer>A prototype inspired by the story of the early Universe. Some physical processes are simplified for gameplay.</footer>
+
+</div>
+
+<script>
+const ELEMENTS = {
+  quark:      {name:'Quark', glyph:'q', era:0, fact:'Quarks are the smallest known elementary building blocks of matter; protons and neutrons are made of them.'},
+  gluon:      {name:'Gluon', glyph:'g', era:0, fact:'Gluons carry the strong nuclear force, binding quarks together.'},
+  electron:   {name:'Electron', glyph:'e⁻', era:0, fact:'The electron is a light, negatively charged particle that dictates the chemical properties of atoms.'},
+  photon:     {name:'Photon', glyph:'γ', era:0, fact:'A photon is a quantum of light with zero rest mass, constantly traveling at the speed of light.'},
+  neutrino:   {name:'Neutrino', glyph:'ν', era:0, fact:'Neutrinos barely interact with matter — trillions pass through you every second from the Sun.'},
+  gravity:    {name:'Gravity', glyph:'∇', era:0, fact:'Gravity is the weakest fundamental force, yet it shapes the large-scale structure of the Universe.'},
+  time:       {name:'Time', glyph:'⏳', era:0, fact:'Modern physics suggests time itself emerged alongside space during the Big Bang.'},
+
+  diquark:    {name:'Diquark', glyph:'qq', era:1, fact:'Two bound quarks form a diquark — an intermediate state on the way to nucleons.'},
+  proton:     {name:'Proton', glyph:'p⁺', era:1, fact:'A proton consists of three quarks tightly bound by gluons.'},
+  neutron:    {name:'Neutron', glyph:'n⁰', era:1, fact:'A neutron has zero net charge and is unstable outside of an atomic nucleus.'},
+  qgp:        {name:'Quark-Gluon Plasma', glyph:'QGP', era:1, fact:'Quark-gluon plasma is a primordial state of matter from the first microseconds, recreated at the LHC.'},
+  radiation:  {name:'Radiation', glyph:'∿', era:1, fact:'In the early Universe, radiation energy density dominated and drove cosmic expansion.'},
+  cnb:        {name:'Cosmic Neutrino Background', glyph:'νCB', era:1, fact:'Relic neutrinos decoupled before light could travel freely across the Universe.'},
+
+  hydrogen:   {name:'Hydrogen', glyph:'H', era:2, fact:'Hydrogen is the most abundant element in the Universe, comprising ~75% of baryonic matter.'},
+  deuterium:  {name:'Deuterium', glyph:'D', era:2, fact:'Deuterium is a heavy hydrogen isotope and one of the first nuclei synthesized after the Big Bang.'},
+  helium3:    {name:'Helium-3', glyph:'³He', era:2, fact:'Helium-3 is a rare light isotope produced during Big Bang nucleosynthesis.'},
+  helium4:    {name:'Helium-4', glyph:'⁴He', era:2, fact:'Helium-4 makes up approximately 25% of all observable ordinary matter in the cosmos.'},
+  h2:         {name:'Molecular Hydrogen', glyph:'H₂', era:2, fact:'Molecular hydrogen (H₂) is the primary gaseous component from which stars coalesce.'},
+  beryllium:  {name:'Beryllium', glyph:'Be', era:2, fact:'Beryllium-8 is extremely unstable, yet crucial as an intermediate step toward carbon.'},
+  carbon:     {name:'Carbon', glyph:'C', era:2, fact:'Carbon is forged inside stars via the triple-alpha process — the backbone of organic chemistry.'},
+
+  gas_cloud:  {name:'Gas Cloud', glyph:'☁', era:3, fact:'Vast clouds of hydrogen slowly collapse under their own mutual gravity.'},
+  nebula:     {name:'Nebula', glyph:'✵', era:3, fact:'A dense interstellar cloud of gas and dust serving as a stellar nursery.'},
+  protostar:  {name:'Protostar', glyph:'☆', era:3, fact:'A contracting gas ball heating up until thermonuclear fusion ignites in its core.'},
+  star:       {name:'Star', glyph:'★', era:3, fact:'A massive luminous sphere of plasma powered by thermonuclear fusion in its core.'},
+  red_giant:  {name:'Red Giant', glyph:'●', era:3, fact:'An aging, expanded star that has exhausted hydrogen in its core and begins fusing helium.'},
+  oxygen:     {name:'Oxygen', glyph:'O', era:3, fact:'Oxygen forms via the fusion of helium and carbon inside massive stellar cores.'},
+  iron:       {name:'Iron', glyph:'Fe', era:3, fact:'Iron is the terminal element of exothermic stellar nucleosynthesis.'},
+  supernova:  {name:'Supernova', glyph:'✺', era:3, fact:'A colossal explosion of a dying massive star that outshines an entire galaxy.'},
+  black_hole: {name:'Black Hole', glyph:'⬤', era:3, fact:'A gravitational singularity where gravity is so intense that not even light can escape.'},
+  neutron_star:{name:'Neutron Star', glyph:'◉', era:3, fact:'An ultra-dense collapsed stellar remnant where a single teaspoon weighs billions of tons.'},
+  gold:       {name:'Gold', glyph:'Au', era:3, fact:'Heavy elements like gold are predominantly forged in neutron star mergers and supernovae.'},
+
+  water:      {name:'Water', glyph:'H₂O', era:4, fact:'Water is an essential compound and universal solvent vital for all known forms of life.'},
+  co2:        {name:'Carbon Dioxide', glyph:'CO₂', era:4, fact:'A carbon-oxygen compound vital for planetary atmospheres and biological carbon cycles.'},
+  planet:     {name:'Planet', glyph:'◐', era:4, fact:'A celestial body formed from the accretion disk of dust and ice orbiting a young star.'},
+  ocean:      {name:'Ocean', glyph:'≈', era:4, fact:'Liquid water covering a planetary surface — an ideal medium for prebiotic synthesis.'},
+  life:       {name:'Life', glyph:'✦', era:4, fact:'A complex self-sustaining biochemical process; currently confirmed only on Earth.'},
+  star_cluster:{name:'Star Cluster', glyph:'✳', era:4, fact:'A gravitationally bound group of stars formed synchronously from the same giant nebula.'},
+  galaxy:     {name:'Galaxy', glyph:'✧', era:4, fact:'A massive gravitationally bound system of stars, stellar remnants, gas, and dark matter.'},
+
+  dark_matter:{name:'Dark Matter', glyph:'?', era:5, fact:'Hypothetical non-luminous matter whose gravitational pull holds galaxies together.'},
+  grav_waves: {name:'Gravitational Waves', glyph:'∿∿', era:5, fact:'Ripples in spacetime caused by cataclysmic events like binary black hole mergers.'},
+  universe:   {name:'Universe', glyph:'Ω', era:5, fact:'You have reconstructed the cosmic timeline from fundamental particles to conscious observers.'}
+};
+
+const RECIPE_LIST = [
+  ['quark','quark','diquark'],
+  ['diquark','quark','proton'],
+  ['diquark','electron','neutron'],
+  ['quark','gluon','qgp'],
+  ['photon','photon','radiation'],
+  ['neutrino','neutrino','cnb'],
+
+  ['proton','electron','hydrogen'],
+  ['proton','neutron','deuterium'],
+  ['deuterium','proton','helium3'],
+  ['deuterium','deuterium','helium4'],
+  ['hydrogen','hydrogen','h2'],
+  ['helium4','helium4','beryllium'],
+  ['beryllium','helium4','carbon'],
+
+  ['hydrogen','gravity','gas_cloud'],
+  ['gas_cloud','gas_cloud','nebula'],
+  ['nebula','gravity','protostar'],
+  ['protostar','time','star'],
+  ['star','helium4','red_giant'],
+  ['red_giant','carbon','oxygen'],
+  ['star','carbon','iron'],
+  ['red_giant','gravity','supernova'],
+  ['supernova','time','black_hole'],
+  ['supernova','gravity','neutron_star'],
+  ['supernova','carbon','gold'],
+
+  ['hydrogen','oxygen','water'],
+  ['carbon','oxygen','co2'],
+  ['iron','gravity','planet'],
+  ['planet','water','ocean'],
+  ['ocean','time','life'],
+  ['star','star','star_cluster'],
+  ['star_cluster','gravity','galaxy'],
+  ['gravity','cnb','dark_matter'],
+  ['black_hole','black_hole','grav_waves'],
+  ['galaxy','dark_matter','universe']
+];
+
+const RECIPES = {};
+RECIPE_LIST.forEach(([a,b,r])=>{
+  const key = [a,b].sort().join('+');
+  RECIPES[key] = r;
+});
+
+const ERAS = [
+  {id:0, name:'First Particles', color:'var(--era0)'},
+  {id:1, name:'Hadrons', color:'var(--era1)'},
+  {id:2, name:'Nucleosynthesis', color:'var(--era2)'},
+  {id:3, name:'Stars & Elements', color:'var(--era3)'},
+  {id:4, name:'Planets & Life', color:'var(--era4)'},
+  {id:5, name:'Cosmic Mysteries', color:'var(--era5)'}
+];
+
+const BASE_IDS = Object.keys(ELEMENTS).filter(id => ELEMENTS[id].era === 0);
+let discovered = new Set(BASE_IDS);
+let selection = [];
+let failStreak = 0;
+const totalCount = Object.keys(ELEMENTS).length;
+
+const erasContainer = document.getElementById('eras');
+const discCountEl = document.getElementById('discCount');
+const totalCountEl = document.getElementById('totalCount');
+const progressFill = document.getElementById('progressFill');
+const labResult = document.getElementById('labResult');
+const slotEls = [document.getElementById('slot0'), document.getElementById('slot1')];
+
+totalCountEl.textContent = totalCount;
+
+function render(){
+  erasContainer.innerHTML = '';
+  discCountEl.textContent = discovered.size;
+  progressFill.style.width = Math.round(discovered.size/totalCount*100) + '%';
+
+  ERAS.forEach(era=>{
+    const ids = Object.keys(ELEMENTS).filter(id=>ELEMENTS[id].era===era.id);
+    const found = ids.filter(id=>discovered.has(id));
+    if(found.length===0 && era.id!==0) return;
+
+    const block = document.createElement('div');
+    block.className='era';
+
+    const head = document.createElement('div');
+    head.className='era-head';
+    head.innerHTML = `<span class="era-dot" style="background:${era.color}"></span>
+      <h2>${era.name}</h2>
+      <span class="count">${found.length}/${ids.length}</span>`;
+    block.appendChild(head);
+
+    const grid = document.createElement('div');
+    grid.className='grid';
+
+    ids.forEach(id=>{
+      const el = ELEMENTS[id];
+      const tile = document.createElement('div');
+      if(discovered.has(id)){
+        tile.className='tile' + (id===lastDiscoveredId ? ' new-tile':'');
+        tile.tabIndex=0;
+        tile.setAttribute('role','button');
+        tile.setAttribute('aria-label', el.name);
+        tile.innerHTML = `<div class="badge" style="background:${era.color}">${el.glyph}</div><div class="name">${el.name}</div>`;
+        tile.addEventListener('click', ()=>selectTile(id, tile));
+        tile.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectTile(id, tile);} });
+        if(selection.includes(id)) tile.classList.add('selected');
+      } else {
+        tile.className='tile locked';
+        tile.innerHTML = `<div class="badge">?</div><div class="name">???</div>`;
+      }
+      grid.appendChild(tile);
+    });
+
+    block.appendChild(grid);
+    erasContainer.appendChild(block);
+  });
+
+  slotEls.forEach((slotEl, i)=>{
+    const id = selection[i];
+    if(id){
+      const el = ELEMENTS[id];
+      slotEl.classList.add('filled');
+      slotEl.innerHTML = `<span class="glyph">${el.glyph}</span>`;
+    } else {
+      slotEl.classList.remove('filled');
+      slotEl.innerHTML = `<span class="glyph">?</span>`;
+    }
+  });
+}
+
+let lastDiscoveredId = null;
+
+function selectTile(id, tileEl){
+  if(selection.length < 2){
+    selection.push(id);
+  } else {
+    return;
+  }
+  render();
+  if(selection.length === 2){
+    attemptCombine();
+  }
+}
+
+function getHint(){
+  for (const [a, b, res] of RECIPE_LIST) {
+    if (discovered.has(a) && discovered.has(b) && !discovered.has(res)) {
+      const hintSource = Math.random() > 0.5 ? a : b;
+      return `💡 Hint: Try combining "${ELEMENTS[hintSource].name}" with something else.`;
+    }
+  }
+  return null;
+}
+
+function attemptCombine(){
+  const key = [...selection].sort().join('+');
+  const resultId = RECIPES[key];
+
+  setTimeout(()=>{
+    if(resultId){
+      failStreak = 0;
+      const already = discovered.has(resultId);
+      discovered.add(resultId);
+      lastDiscoveredId = resultId;
+      const el = ELEMENTS[resultId];
+      labResult.className = 'lab-result ok';
+      labResult.textContent = already
+        ? `Formed again: ${el.name}.`
+        : `Discovered: ${el.name}! ${el.fact}`;
+    } else {
+      failStreak++;
+      document.querySelector('.lab').classList.add('shake');
+      setTimeout(()=>document.querySelector('.lab').classList.remove('shake'), 400);
+
+      if (failStreak >= 5) {
+        const hint = getHint();
+        if (hint) {
+          labResult.className = 'lab-result hint';
+          labResult.textContent = hint;
+        } else {
+          labResult.className = 'lab-result bad';
+          labResult.textContent = 'These elements do not react. Try different pairs!';
+        }
+      } else {
+        labResult.className = 'lab-result bad';
+        labResult.textContent = 'These elements do not combine yet.';
+      }
+    }
+    selection = [];
+    render();
+    setTimeout(()=>{ lastDiscoveredId = null; }, 1500);
+  }, 350);
+}
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  selection = [];
+  labResult.textContent = 'Choose two elements below';
+  labResult.className = 'lab-result';
+  render();
+});
+
+const resetBtn = document.getElementById('resetBtn');
+let resetArmed = false;
+resetBtn.addEventListener('click', ()=>{
+  if(!resetArmed){
+    resetArmed = true;
+    resetBtn.textContent = 'Are you sure?';
+    setTimeout(()=>{ resetArmed=false; resetBtn.textContent='Reset Progress'; }, 3000);
+    return;
+  }
+  discovered = new Set(BASE_IDS);
+  selection = [];
+  failStreak = 0;
+  resetArmed = false;
+  resetBtn.textContent = 'Reset Progress';
+  labResult.textContent = 'Progress reset. Choose two elements below';
+  labResult.className = 'lab-result';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
