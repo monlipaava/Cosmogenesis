@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Космогенез">
+<title>Космогенез — от кварка до Вселенной</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0D18;
+    --bg-2:#0E1220;
+    --panel:#131829;
+    --panel-2:#1A2138;
+    --border:#262E4C;
+    --text:#EAE8F3;
+    --text-dim:#8991AE;
+    --text-dimmer:#5B6485;
+
+    --era0:#9B8CFB;
+    --era1:#F2617A;
+    --era2:#F2C14E;
+    --era3:#EC8B45;
+    --era4:#4FC9A8;
+    --era5:#C9CEEA;
+    --earth:#2ECC71;
+
+    --radius:14px;
+  }
+
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+
+  html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    overflow-x:hidden;
+    background-color:var(--bg);
+    -webkit-user-select:none;
+    user-select:none;
+    -webkit-touch-callout:none;
+  }
+
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(155,140,251,0.14), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(79,201,168,0.08), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height:100vh;
+    min-height:-webkit-fill-available;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding-top:max(12px, env(safe-area-inset-top));
+    padding-bottom:max(30px, env(safe-area-inset-bottom));
+    padding-left:max(14px, env(safe-area-inset-left));
+    padding-right:max(14px, env(safe-area-inset-right));
+  }
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+    border-bottom:1px solid var(--border);
+    padding-bottom:10px;
+  }
+  header h1{
+    font-size:22px;
+    font-weight:700;
+    margin:0 0 2px;
+  }
+  header p{
+    margin:0;
+    color:var(--text-dim);
+    font-size:12px;
+    max-width:44ch;
+    line-height:1.3;
+  }
+  .progress-block{
+    min-width:110px;
+    text-align:right;
+  }
+  .progress-count{
+    font-size:13px;
+    font-weight:600;
+    color:var(--era2);
+    margin-bottom:4px;
+  }
+  .progress-count span{color:var(--text-dim); font-weight:400;}
+  .progress-bar{
+    height:5px;
+    background:var(--panel-2);
+    border-radius:99px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--era0), var(--era2), var(--earth));
+    width:0%;
+    transition:width .4s ease;
+  }
+
+  .lab{
+    position:-webkit-sticky;
+    position:sticky;
+    top:max(6px, env(safe-area-inset-top));
+    z-index:100;
+    background:rgba(19, 24, 41, 0.94);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:10px 12px;
+    margin-bottom:16px;
+    box-shadow:0 8px 24px -8px rgba(0,0,0,0.7);
+  }
+  .lab-inner{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+  }
+  .slot{
+    width:62px;
+    height:62px;
+    border-radius:var(--radius);
+    border:1.5px dashed var(--text-dimmer);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--text-dimmer);
+    font-size:11px;
+    cursor:pointer;
+    transition:border-color .2s, transform .2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background:rgba(255,255,255,0.03);
+    text-align:center;
+  }
+  .slot.filled{
+    border-style:solid;
+    color:var(--text);
+    animation:slot-land 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .slot .glyph{font-size:20px; line-height:1;}
+
+  @keyframes slot-land{
+    0%{transform:scale(0.8);}
+    50%{transform:scale(1.15);}
+    100%{transform:scale(1);}
+  }
+
+  .reactor{
+    position:relative;
+    width:44px;
+    height:44px;
+    flex:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .reactor-core{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    font-weight:600;
+    color:var(--text-dimmer);
+    border:1.5px dashed var(--text-dimmer);
+    background:rgba(255,255,255,0.03);
+    transition:all .3s ease;
+  }
+  .reactor.combining .reactor-core{
+    border-style:solid;
+    border-color:var(--era2);
+    color:var(--era2);
+    animation:spin-pulse .5s linear infinite;
+  }
+  .reactor.success .reactor-core{
+    border-color:var(--result-color, var(--era2));
+    background:var(--result-color, var(--era2));
+    color:#0A0D18;
+    box-shadow:0 0 20px var(--result-color, var(--era2));
+    animation:reveal-pop .5s cubic-bezier(.22,.85,.3,1.35);
+  }
+  @keyframes spin-pulse{
+    0%{transform:rotate(0deg) scale(1);}
+    50%{transform:rotate(180deg) scale(1.15);}
+    100%{transform:rotate(360deg) scale(1);}
+  }
+  @keyframes reveal-pop{
+    0%{transform:scale(0.2); opacity:0;}
+    60%{transform:scale(1.25); opacity:1;}
+    100%{transform:scale(1);}
+  }
+
+  .ring{
+    position:absolute;
+    top:50%; left:50%;
+    width:44px; height:44px;
+    margin:-22px 0 0 -22px;
+    border-radius:50%;
+    border:2px solid var(--result-color, var(--era2));
+    opacity:0;
+    pointer-events:none;
+  }
+  .ring.animate{
+    animation:ring-burst .7s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  }
+  @keyframes ring-burst{
+    0%{transform:scale(0.5); opacity:1; border-width:3px;}
+    100%{transform:scale(3); opacity:0; border-width:1px;}
+  }
+
+  .fly-badge{
+    position:fixed;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+    font-weight:600;
+    color:#0A0D18;
+    pointer-events:none;
+    z-index:9999;
+    box-shadow:0 0 14px rgba(255,255,255,0.4);
+    transition:transform 0.4s cubic-bezier(0.2, 0.8, 0.25, 1), opacity 0.4s ease;
+  }
+
+  .lab-result{
+    max-width:460px;
+    margin:8px auto 0;
+    text-align:center;
+    font-size:12px;
+    color:var(--text-dim);
+    line-height:1.3;
+    min-height:20px;
+    padding:3px 8px;
+    border-radius:6px;
+    transition:all 0.3s ease;
+  }
+  .lab-result.ok{
+    color:#FFE28A;
+    animation:bulb-glow 1.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+
+  @keyframes bulb-glow{
+    0%{
+      opacity:0;
+      transform:scale(0.96);
+      background:rgba(255, 214, 102, 0);
+      text-shadow:0 0 0 rgba(255, 214, 102, 0);
+    }
+    20%{
+      opacity:1;
+      transform:scale(1.02);
+      background:rgba(255, 214, 102, 0.16);
+      text-shadow:0 0 10px rgba(255, 214, 102, 0.8), 0 0 18px rgba(255, 180, 50, 0.5);
+    }
+    100%{
+      opacity:1;
+      transform:scale(1);
+      background:rgba(255, 214, 102, 0.05);
+      text-shadow:0 0 6px rgba(255, 214, 102, 0.4);
+    }
+  }
+
+  .lab-result.bad{color:var(--era1);}
+  .lab-result.hint{color:var(--era2); font-weight:600;}
+
+  .lab-actions{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-top:8px;
+  }
+  .btn{
+    font-family:inherit;
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    font-size:11px;
+    padding:5px 12px;
+    border-radius:99px;
+    cursor:pointer;
+  }
+  .btn:active{background:rgba(255,255,255,0.1); color:var(--text);}
+  .btn.danger:active{border-color:var(--era1); color:var(--era1);}
+
+  .era{margin-bottom:18px;}
+  .era-head{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .era-dot{
+    width:7px; height:7px; border-radius:50%;
+    flex:none;
+  }
+  .era-head h2{
+    font-size:13.5px;
+    font-weight:600;
+    margin:0;
+  }
+  .era-head .count{
+    font-size:11px;
+    color:var(--text-dimmer);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(76px, 1fr));
+    gap:6px;
+  }
+
+  .tile{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:8px 3px 6px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+    cursor:pointer;
+    text-align:center;
+    transition:transform .1s ease, border-color .1s ease, box-shadow .2s ease;
+  }
+  .tile:active{transform:scale(0.95);}
+  .tile.selected{
+    border-color:var(--era2);
+    background:var(--panel-2);
+  }
+
+  .tile.hint-target{
+    border-color:var(--era2);
+    animation:hint-pulse 1.4s ease-in-out infinite alternate;
+  }
+  .tile.hint-target .badge{
+    box-shadow:0 0 12px rgba(242, 193, 78, 0.75);
+  }
+
+  @keyframes hint-pulse{
+    0%{
+      box-shadow:0 0 4px rgba(242, 193, 78, 0.35);
+      border-color:rgba(242, 193, 78, 0.5);
+      transform:translateY(0);
+    }
+    100%{
+      box-shadow:0 0 16px rgba(242, 193, 78, 0.85);
+      border-color:rgba(242, 193, 78, 1);
+      transform:translateY(-2px);
+    }
+  }
+
+  .tile .badge{
+    width:32px; height:32px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px;
+    font-weight:600;
+    color:#0A0D18;
+  }
+  .tile .name{
+    font-size:10.5px;
+    color:var(--text-dim);
+    line-height:1.2;
+    word-break:break-word;
+  }
+  .tile.new-tile{
+    animation:tile-burst-in .8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes tile-burst-in{
+    0%{transform:scale(0.4); opacity:0;}
+    50%{transform:scale(1.1);}
+    100%{transform:scale(1); opacity:1;}
+  }
+
+  .locked{
+    border:1px dashed var(--border);
+    background:transparent;
+    opacity:.35;
+  }
+  .locked .badge{
+    background:var(--panel-2);
+    color:var(--text-dimmer);
+    border:1px dashed var(--border);
+  }
+  .locked .name{color:var(--text-dimmer);}
+
+  .shake{animation:shake .35s ease-in-out;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-5px);}
+    75%{transform:translateX(5px);}
+  }
+
+  /* Полноэкранный оверлей открытия отделов и финала Земли */
+  #eraOverlay{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    background:radial-gradient(circle at center, var(--overlay-glow, rgba(155,140,251,0.25)) 0%, rgba(10,13,24,0.96) 80%);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.6s ease;
+    overflow:hidden;
+    padding:20px;
+    text-align:center;
+  }
+  #eraOverlay.active{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  .era-shockwave{
+    position:absolute;
+    width:140px;
+    height:140px;
+    border-radius:50%;
+    border:3px solid var(--overlay-color, var(--era0));
+    opacity:0;
+    pointer-events:none;
+  }
+  #eraOverlay.active .era-shockwave{
+    animation:era-pulse 2.2s cubic-bezier(0.15, 0.85, 0.35, 1) infinite;
+  }
+  #eraOverlay.active .era-shockwave:nth-child(2){
+    animation-delay:0.6s;
+  }
+  #eraOverlay.active .era-shockwave:nth-child(3){
+    animation-delay:1.2s;
+  }
+
+  @keyframes era-pulse{
+    0%{transform:scale(0.3); opacity:0.9; border-width:6px;}
+    100%{transform:scale(6.5); opacity:0; border-width:1px;}
+  }
+
+  .era-particle{
+    position:absolute;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    pointer-events:none;
+  }
+
+  .era-overlay-content{
+    position:relative;
+    z-index:10;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    transform:scale(0.85);
+    transition:transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  #eraOverlay.active .era-overlay-content{
+    transform:scale(1);
+  }
+
+  .era-big-badge{
+    width:105px;
+    height:105px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:44px;
+    color:#0A0D18;
+    margin-bottom:18px;
+    animation:era-float 3s ease-in-out infinite alternate;
+  }
+  @keyframes era-float{
+    0%{transform:translateY(0) rotate(0deg);}
+    100%{transform:translateY(-8px) rotate(5deg);}
+  }
+
+  .era-subtitle{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.18em;
+    color:var(--overlay-color, var(--era2));
+    margin-bottom:6px;
+    font-weight:600;
+  }
+
+  .era-overlay-title{
+    font-size:28px;
+    font-weight:700;
+    color:#EAE8F3;
+    margin:0 0 10px;
+    letter-spacing:-0.02em;
+  }
+  .era-overlay-desc{
+    font-size:14px;
+    color:var(--text-dim);
+    max-width:330px;
+    line-height:1.45;
+    margin:0 0 22px;
+  }
+  .era-close-btn{
+    font-family:inherit;
+    background:rgba(255,255,255,0.06);
+    border:1.5px solid var(--overlay-color, var(--era2));
+    color:#EAE8F3;
+    font-size:13px;
+    font-weight:600;
+    padding:9px 24px;
+    border-radius:99px;
+    cursor:pointer;
+    box-shadow:0 0 20px var(--overlay-glow, rgba(255,255,255,0.2));
+    transition:transform 0.15s ease, background 0.15s ease;
+  }
+  .era-close-btn:active{
+    transform:scale(0.94);
+  }
+
+  footer{
+    margin-top:20px;
+    text-align:center;
+    color:var(--text-dimmer);
+    font-size:11px;
+    line-height:1.3;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Космогенез</h1>
+      <p>Создай Вселенную от кварков до жизни по законам физики ЦЕРНа.</p>
+    </div>
+    <div class="progress-block">
+      <div class="progress-count"><span id="discCount">7</span><span> / <span id="totalCount">42</span></span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </header>
+
+  <div class="lab">
+    <div class="lab-inner">
+      <div class="slot" id="slot0"><span class="glyph">?</span></div>
+      <div class="reactor" id="reactor">
+        <div class="ring" id="ring"></div>
+        <div class="reactor-core" id="reactorCore">+</div>
+      </div>
+      <div class="slot" id="slot1"><span class="glyph">?</span></div>
+    </div>
+    <div class="lab-result" id="labResult">Выбери два элемента</div>
+    <div class="lab-actions">
+      <button class="btn" id="clearBtn">Очистить</button>
+      <button class="btn danger" id="resetBtn">Сброс</button>
+    </div>
+  </div>
+
+  <div id="eras"></div>
+
+  <footer>Вдохновлено физикой ЦЕРНа.</footer>
+
+</div>
+
+<!-- Полноэкранный оверлей для открытия отделов -->
+<div id="eraOverlay">
+  <div class="era-shockwave"></div>
+  <div class="era-shockwave"></div>
+  <div class="era-shockwave"></div>
+  <div class="era-overlay-content">
+    <div class="era-subtitle">Новый рубеж эволюции</div>
+    <div class="era-big-badge" id="eraBigBadge">⚛</div>
+    <div class="era-overlay-title" id="eraOverlayTitle">Адроны</div>
+    <div class="era-overlay-desc" id="eraOverlayDesc">Кварки соединились в протоны и нейтроны.</div>
+    <button class="era-close-btn" id="eraCloseBtn">Продолжить</button>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if(tg){
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor('#0A0D18');
+  tg.setBackgroundColor('#0A0D18');
+}
+
+function haptic(type){
+  if(!tg?.HapticFeedback) return;
+  if(type === 'tap') tg.HapticFeedback.impactOccurred('light');
+  if(type === 'success') tg.HapticFeedback.notificationOccurred('success');
+  if(type === 'error') tg.HapticFeedback.notificationOccurred('error');
+}
+
+const ELEMENTS = {
+  quark:      {name:'Кварк', glyph:'q', era:0, fact:'Кварки — фундаментальные неделимые блоки протонов и нейтронов.'},
+  gluon:      {name:'Глюон', glyph:'g', era:0, fact:'Глюоны переносят сильное ядерное взаимодействие и склеивают кварки.'},
+  electron:   {name:'Электрон', glyph:'e⁻', era:0, fact:'Электроны формируют оболочки атомов и определяют свойства материи.'},
+  photon:     {name:'Фотон', glyph:'γ', era:0, fact:'Фотон — безмассовый квант света и электромагнитного поля.'},
+  neutrino:   {name:'Нейтрино', glyph:'ν', era:0, fact:'Нейтрино почти беспрепятственно пронзают планеты и звёзды.'},
+  gravity:    {name:'Гравитация', glyph:'∇', era:0, fact:'Гравитация управляет крупномасштабной структурой космоса.'},
+  time:       {name:'Время', glyph:'⏳', era:0, fact:'Пространство и время родились одновременно в момент Большого взрыва.'},
+
+  diquark:    {name:'Дикварк', glyph:'qq', era:1, fact:'Два связанных кварка — промежуточное звено на пути к барионам.'},
+  proton:     {name:'Протон', glyph:'p⁺', era:1, fact:'Стабильный адрон из трёх кварков, скреплённых глюонами.'},
+  neutron:    {name:'Нейтрон', glyph:'n⁰', era:1, fact:'Нейтральный нуклон, нестабильный вне атомного ядра.'},
+  qgp:        {name:'Кварк-плазма', glyph:'QGP', era:1, fact:'Сверхгорячее состояние первых микросекунд Вселенной.'},
+  radiation:  {name:'Излучение', glyph:'∿', era:1, fact:'Плотность излучения определяла расширение раннего космоса.'},
+  cnb:        {name:'Реликт. нейтрино', glyph:'νCB', era:1, fact:'Древнейший космический фон из первых секунд космогенеза.'},
+
+  hydrogen:   {name:'Водород', glyph:'H', era:2, fact:'Самый распространённый элемент (~75% обычного вещества).'},
+  deuterium:  {name:'Дейтерий', glyph:'D', era:2, fact:'Тяжёлый изотоп водорода первичного нуклеосинтеза.'},
+  helium3:    {name:'Гелий-3', glyph:'³He', era:2, fact:'Редкий лёгкий изотоп гелия из эпохи зарождения первых ядер.'},
+  helium4:    {name:'Гелий-4', glyph:'⁴He', era:2, fact:'Составляет около четверти массы вещества Вселенной.'},
+  h2:         {name:'Газ H₂', glyph:'H₂', era:2, fact:'Молекулярный водород, коллапсирующий в протозвёздные облака.'},
+  beryllium:  {name:'Бериллий', glyph:'Be', era:2, fact:'Резонансное звено, открывающее путь к рождению углерода.'},
+  carbon:     {name:'Углерод', glyph:'C', era:2, fact:'Фундамент органической химии, выкованный внутри звёзд.'},
+
+  gas_cloud:  {name:'Газовое облако', glyph:'☁', era:3, fact:'Массивный резервуар водорода, сжимающийся под гравитацией.'},
+  nebula:     {name:'Туманность', glyph:'✵', era:3, fact:'Звёздная колыбель из плотного газа и космической пыли.'},
+  protostar:  {name:'Протозвезда', glyph:'☆', era:3, fact:'Плотное ядро, разогревающееся до термоядерного синтеза.'},
+  star:       {name:'Звезда', glyph:'★', era:3, fact:'Термоядерный реактор, сплавляющий водород в гелий.'},
+  red_giant:  {name:'Красный гигант', glyph:'●', era:3, fact:'Раздувшаяся звезда на исходе запасов водорода в ядре.'},
+  oxygen:     {name:'Кислород', glyph:'O', era:3, fact:'Образуется слиянием гелия и углерода в недрах звёзд.'},
+  iron:       {name:'Железо', glyph:'Fe', era:3, fact:'Финал термоядерного синтеза с выделением чистой энергии.'},
+  supernova:  {name:'Сверхновая', glyph:'✺', era:3, fact:'Взрыв звезды, засевающий космос тяжёлыми металлами.'},
+  black_hole: {name:'Чёрная дыра', glyph:'⬤', era:3, fact:'Область гравитации, непреодолимая даже для света.'},
+  neutron_star:{name:'Нейтр. звезда', glyph:'◉', era:3, fact:'Сверхплотное ядро погибшей массивной звезды.'},
+  gold:       {name:'Золото', glyph:'Au', era:3, fact:'Тяжёлый элемент, рождающийся при слиянии нейтронных звёзд.'},
+
+  water:      {name:'Вода', glyph:'H₂O', era:4, fact:'Универсальный полярный растворитель для белковой жизни.'},
+  co2:        {name:'CO₂', glyph:'CO₂', era:4, fact:'Важный парниковый компонент планетарных атмосфер.'},
+  planet:     {name:'Планета', glyph:'◐', era:4, fact:'Твёрдое тело, сконденсированное из аккреционного диска звезды.'},
+  ocean:      {name:'Океан', glyph:'≈', era:4, fact:'Жидкая среда для зарождения первых биомолекулярных сетей.'},
+  life:       {name:'Жизнь', glyph:'✦', era:4, fact:'Высшая ступень термодинамической самоорганизации материи.'},
+  star_cluster:{name:'Скопление звёзд', glyph:'✳', era:4, fact:'Группа звёзд, рождённых синхронно из одной туманности.'},
+  galaxy:     {name:'Галактика', glyph:'✧', era:4, fact:'Остров из сотен миллиардов звёзд, газа и тёмной материи.'},
+
+  dark_matter:{name:'Тёмная материя', glyph:'?', era:5, fact:'Невидимая масса, удерживающая галактики от распада.'},
+  grav_waves: {name:'Грав. волны', glyph:'∿∿', era:5, fact:'Рябь пространства-времени от столкновения чёрных дыр.'},
+  universe:   {name:'Вселенная', glyph:'Ω', era:5, fact:'Путь пройден: от субатомных кварков до разума.'},
+
+  earth:      {name:'Земля', glyph:'♁', era:6, fact:'Кульминация космогенеза: обитаемый дом человечества.'}
+};
+
+const RECIPE_LIST = [
+  ['quark','quark','diquark'],
+  ['diquark','quark','proton'],
+  ['diquark','electron','neutron'],
+  ['quark','gluon','qgp'],
+  ['photon','photon','radiation'],
+  ['neutrino','neutrino','cnb'],
+  ['proton','electron','hydrogen'],
+  ['proton','neutron','deuterium'],
+  ['deuterium','proton','helium3'],
+  ['deuterium','deuterium','helium4'],
+  ['hydrogen','hydrogen','h2'],
+  ['helium4','helium4','beryllium'],
+  ['beryllium','helium4','carbon'],
+  ['hydrogen','gravity','gas_cloud'],
+  ['gas_cloud','gas_cloud','nebula'],
+  ['nebula','gravity','protostar'],
+  ['protostar','time','star'],
+  ['star','helium4','red_giant'],
+  ['red_giant','carbon','oxygen'],
+  ['star','carbon','iron'],
+  ['red_giant','gravity','supernova'],
+  ['supernova','time','black_hole'],
+  ['supernova','gravity','neutron_star'],
+  ['supernova','carbon','gold'],
+  ['hydrogen','oxygen','water'],
+  ['carbon','oxygen','co2'],
+  ['iron','gravity','planet'],
+  ['planet','water','ocean'],
+  ['ocean','time','life'],
+  ['star','star','star_cluster'],
+  ['star_cluster','gravity','galaxy'],
+  ['gravity','cnb','dark_matter'],
+  ['black_hole','black_hole','grav_waves'],
+  ['galaxy','dark_matter','universe'],
+  ['planet','life','earth']
+];
+
+const RECIPES = {};
+RECIPE_LIST.forEach(([a,b,r])=>{
+  RECIPES[[a,b].sort().join('+')] = r;
+});
+
+const ERAS = [
+  {
+    id:0, 
+    name:'Первые частицы', 
+    color:'var(--era0)', 
+    glow:'rgba(155,140,251,0.3)',
+    glyph:'q',
+    desc:'Фундаментальные поля и кванты ранней Вселенной.'
+  },
+  {
+    id:1, 
+    name:'Адроны', 
+    color:'var(--era1)', 
+    glow:'rgba(242,97,122,0.35)',
+    glyph:'p⁺',
+    desc:'Остывание космоса позволило глюонам связать кварки в первые протоны и нейтроны.'
+  },
+  {
+    id:2, 
+    name:'Нуклеосинтез', 
+    color:'var(--era2)', 
+    glow:'rgba(242,193,78,0.35)',
+    glyph:'⁴He',
+    desc:'Первичный ядерный реактор зажёгся, синтезировав ядра водорода, гелия и углерода.'
+  },
+  {
+    id:3, 
+    name:'Звёзды и элементы', 
+    color:'var(--era3)', 
+    glow:'rgba(236,139,69,0.35)',
+    glyph:'★',
+    desc:'Гравитация зажгла термоядерные печи звёзд, кующие кислород, железо и золото.'
+  },
+  {
+    id:4, 
+    name:'Планеты и жизнь', 
+    color:'var(--era4)', 
+    glow:'rgba(79,201,168,0.35)',
+    glyph:'✦',
+    desc:'Холодные миры сконденсировали воду, и началась химическая эволюция к жизни.'
+  },
+  {
+    id:5, 
+    name:'Тайны космоса', 
+    color:'var(--era5)', 
+    glow:'rgba(201,206,234,0.35)',
+    glyph:'Ω',
+    desc:'Галактики объединились тёмной материей и гравитационными волнами во Вселенную.'
+  },
+  {
+    id:6, 
+    name:'Венец творения', 
+    color:'var(--earth)', 
+    glow:'rgba(46,204,113,0.4)',
+    glyph:'♁',
+    desc:'Слияние планеты и жизни породило биосферу Земли — дом разумных наблюдателей!'
+  }
+];
+
+const BASE_IDS = Object.keys(ELEMENTS).filter(id => ELEMENTS[id].era === 0);
+let discovered = new Set(BASE_IDS);
+let unlockedEras = new Set([0]);
+
+try {
+  const saved = localStorage.getItem('cosmo_tma_save_v3');
+  if(saved) {
+    const data = JSON.parse(saved);
+    discovered = new Set(data.discovered || BASE_IDS);
+    unlockedEras = new Set(data.unlockedEras || [0]);
+  }
+} catch(e){}
+
+let selection = [];
+let failStreak = 0;
+let highlightedHintId = null;
+let lastDiscoveredId = null;
+const totalCount = Object.keys(ELEMENTS).length;
+
+const erasContainer = document.getElementById('eras');
+const discCountEl = document.getElementById('discCount');
+const totalCountEl = document.getElementById('totalCount');
+const progressFill = document.getElementById('progressFill');
+const labResult = document.getElementById('labResult');
+const slotEls = [document.getElementById('slot0'), document.getElementById('slot1')];
+const reactor = document.getElementById('reactor');
+const reactorCore = document.getElementById('reactorCore');
+const ring = document.getElementById('ring');
+
+const eraOverlay = document.getElementById('eraOverlay');
+const eraBigBadge = document.getElementById('eraBigBadge');
+const eraOverlayTitle = document.getElementById('eraOverlayTitle');
+const eraOverlayDesc = document.getElementById('eraOverlayDesc');
+const eraCloseBtn = document.getElementById('eraCloseBtn');
+
+totalCountEl.textContent = totalCount;
+
+function saveProgress(){
+  try {
+    localStorage.setItem('cosmo_tma_save_v3', JSON.stringify({
+      discovered: [...discovered],
+      unlockedEras: [...unlockedEras]
+    }));
+  } catch(e){}
+}
+
+function render(){
+  erasContainer.innerHTML = '';
+  discCountEl.textContent = discovered.size;
+  progressFill.style.width = Math.round(discovered.size/totalCount*100) + '%';
+
+  ERAS.forEach(era=>{
+    const ids = Object.keys(ELEMENTS).filter(id=>ELEMENTS[id].era===era.id);
+    const found = ids.filter(id=>discovered.has(id));
+    if(found.length===0 && era.id!==0) return;
+
+    const block = document.createElement('div');
+    block.className='era';
+    block.innerHTML = `
+      <div class="era-head">
+        <span class="era-dot" style="background:${era.color}"></span>
+        <h2>${era.name}</h2>
+        <span class="count">${found.length}/${ids.length}</span>
+      </div>
+    `;
+
+    const grid = document.createElement('div');
+    grid.className='grid';
+
+    ids.forEach(id=>{
+      const el = ELEMENTS[id];
+      const tile = document.createElement('div');
+      tile.id = 'tile-' + id;
+      if(discovered.has(id)){
+        let classes = 'tile';
+        if(id === lastDiscoveredId) classes += ' new-tile';
+        if(id === highlightedHintId) classes += ' hint-target';
+        tile.className = classes;
+        tile.innerHTML = `<div class="badge" style="background:${era.color}">${el.glyph}</div><div class="name">${el.name}</div>`;
+        tile.addEventListener('click', (e)=>selectTile(id, e.currentTarget));
+        if(selection.includes(id)) tile.classList.add('selected');
+      } else {
+        tile.className='tile locked';
+        tile.innerHTML = `<div class="badge">?</div><div class="name">???</div>`;
+      }
+      grid.appendChild(tile);
+    });
+
+    block.appendChild(grid);
+    erasContainer.appendChild(block);
+  });
+
+  slotEls.forEach((slotEl, i)=>{
+    const id = selection[i];
+    if(id){
+      const el = ELEMENTS[id];
+      slotEl.classList.add('filled');
+      slotEl.innerHTML = `<span class="glyph">${el.glyph}</span>`;
+    } else {
+      slotEl.classList.remove('filled');
+      slotEl.innerHTML = `<span class="glyph">?</span>`;
+    }
+  });
+}
+
+function flyBadge(startRect, endRect, glyph, color, onFinish){
+  const flyer = document.createElement('div');
+  flyer.className = 'fly-badge';
+  flyer.textContent = glyph;
+  flyer.style.background = color;
+  flyer.style.left = startRect.left + 'px';
+  flyer.style.top = startRect.top + 'px';
+  flyer.style.width = startRect.width + 'px';
+  flyer.style.height = startRect.height + 'px';
+  document.body.appendChild(flyer);
+
+  flyer.getBoundingClientRect();
+
+  const deltaX = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
+  const deltaY = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
+
+  flyer.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.9)`;
+
+  setTimeout(()=>{
+    flyer.style.opacity = '0';
+    setTimeout(()=>{
+      flyer.remove();
+      if(onFinish) onFinish();
+    }, 120);
+  }, 380);
+}
+
+function selectTile(id, tileElement){
+  haptic('tap');
+  if(selection.length >= 2) return;
+
+  if(highlightedHintId === id){
+    highlightedHintId = null;
+  }
+
+  const targetSlot = slotEls[selection.length];
+  const badgeEl = tileElement.querySelector('.badge');
+  const startRect = badgeEl.getBoundingClientRect();
+  const endRect = targetSlot.getBoundingClientRect();
+
+  selection.push(id);
+
+  flyBadge(startRect, endRect, ELEMENTS[id].glyph, getComputedStyle(badgeEl).backgroundColor, ()=>{
+    render();
+    if(selection.length === 2){
+      attemptCombine();
+    }
+  });
+}
+
+function getHintData(){
+  for (const [a, b, res] of RECIPE_LIST) {
+    if (discovered.has(a) && discovered.has(b) && !discovered.has(res)) {
+      const hintSource = Math.random() > 0.5 ? a : b;
+      return {
+        id: hintSource,
+        text: `💡 Подсказка: попробуй соединить «${ELEMENTS[hintSource].name}» с чем-то ещё.`
+      };
+    }
+  }
+  return null;
+}
+
+// Генерация цветных частиц для текущей эпохи
+function spawnEraParticles(color){
+  for(let i = 0; i < 36; i++){
+    const p = document.createElement('div');
+    p.className = 'era-particle';
+    p.style.background = color;
+    p.style.boxShadow = `0 0 10px ${color}`;
+    eraOverlay.appendChild(p);
+
+    const x = window.innerWidth / 2;
+    const y = window.innerHeight / 2;
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 70 + Math.random() * (window.innerWidth * 0.45);
+    const destX = Math.cos(angle) * distance;
+    const destY = Math.sin(angle) * distance;
+    const duration = 1.0 + Math.random() * 1.0;
+
+    p.animate([
+      { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+      { transform: `translate(${destX}px, ${destY}px) scale(0)`, opacity: 0 }
+    ], {
+      duration: duration * 1000,
+      easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)',
+      fill: 'forwards'
+    });
+
+    setTimeout(() => p.remove(), duration * 1000);
+  }
+}
+
+let particleInterval = null;
+
+function triggerEraCelebration(eraObj){
+  document.documentElement.style.setProperty('--overlay-color', eraObj.color);
+  document.documentElement.style.setProperty('--overlay-glow', eraObj.glow);
+
+  eraBigBadge.style.background = eraObj.color;
+  eraBigBadge.textContent = eraObj.glyph;
+  eraBigBadge.style.boxShadow = `0 0 50px ${eraObj.glow}, 0 0 100px ${eraObj.glow}`;
+  
+  eraOverlayTitle.textContent = eraObj.name;
+  eraOverlayDesc.textContent = eraObj.desc;
+
+  eraOverlay.classList.add('active');
+  spawnEraParticles(eraObj.color);
+
+  clearInterval(particleInterval);
+  particleInterval = setInterval(() => {
+    if(!eraOverlay.classList.contains('active')) {
+      clearInterval(particleInterval);
+      return;
+    }
+    spawnEraParticles(eraObj.color);
+  }, 1300);
+}
+
+eraCloseBtn.addEventListener('click', ()=>{
+  haptic('tap');
+  eraOverlay.classList.remove('active');
+  clearInterval(particleInterval);
+});
+
+function attemptCombine(){
+  reactor.classList.add('combining');
+  const key = [...selection].sort().join('+');
+  const resultId = RECIPES[key];
+
+  setTimeout(()=>{
+    reactor.classList.remove('combining');
+
+    if(resultId){
+      failStreak = 0;
+      highlightedHintId = null;
+      haptic('success');
+      const isFirstTime = !discovered.has(resultId);
+      discovered.add(resultId);
+      lastDiscoveredId = resultId;
+
+      const el = ELEMENTS[resultId];
+      const era = ERAS.find(e => e.id === el.era);
+      document.documentElement.style.setProperty('--result-color', era.color);
+
+      // Проверяем, открылся ли новый отдел (эра)
+      let newlyUnlockedEra = null;
+      if(isFirstTime && !unlockedEras.has(el.era)){
+        unlockedEras.add(el.era);
+        newlyUnlockedEra = era;
+      }
+      saveProgress();
+
+      reactor.classList.add('success');
+      ring.classList.remove('animate');
+      void ring.offsetWidth;
+      ring.classList.add('animate');
+      reactorCore.textContent = el.glyph;
+
+      labResult.className = 'lab-result';
+      void labResult.offsetWidth;
+      labResult.className = 'lab-result ok';
+      labResult.textContent = isFirstTime ? `✨ Открыто: ${el.name}! ${el.fact}` : `Снова получено: ${el.name}.`;
+
+      render();
+
+      // Если разблокирована новая эпоха — запускаем анимацию раздела
+      if(newlyUnlockedEra){
+        setTimeout(()=>{
+          triggerEraCelebration(newlyUnlockedEra);
+        }, 700);
+      }
+
+      setTimeout(()=>{
+        const targetTile = document.getElementById('tile-' + resultId);
+        if(targetTile){
+          const targetBadge = targetTile.querySelector('.badge');
+          flyBadge(reactorCore.getBoundingClientRect(), targetBadge.getBoundingClientRect(), el.glyph, era.color, ()=>{
+            reactor.classList.remove('success');
+            reactorCore.textContent = '+';
+            lastDiscoveredId = null;
+          });
+        } else {
+          reactor.classList.remove('success');
+          reactorCore.textContent = '+';
+        }
+      }, 420);
+
+    } else {
+      failStreak++;
+      haptic('error');
+      document.querySelector('.lab').classList.add('shake');
+      setTimeout(()=>document.querySelector('.lab').classList.remove('shake'), 350);
+
+      if (failStreak >= 5) {
+        const hint = getHintData();
+        if(hint){
+          highlightedHintId = hint.id;
+          labResult.className = 'lab-result hint';
+          labResult.textContent = hint.text;
+        } else {
+          labResult.className = 'lab-result bad';
+          labResult.textContent = 'Попробуй другие комбинации.';
+        }
+      } else {
+        labResult.className = 'lab-result bad';
+        labResult.textContent = 'Эти элементы не взаимодействуют.';
+      }
+    }
+
+    selection = [];
+    render();
+  }, 450);
+}
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  haptic('tap');
+  selection = [];
+  highlightedHintId = null;
+  labResult.textContent = 'Выбери два элемента';
+  labResult.className = 'lab-result';
+  render();
+});
+
+const resetBtn = document.getElementById('resetBtn');
+let resetArmed = false;
+resetBtn.addEventListener('click', ()=>{
+  haptic('tap');
+  if(!resetArmed){
+    resetArmed = true;
+    resetBtn.textContent = 'Точно?';
+    setTimeout(()=>{ resetArmed=false; resetBtn.textContent='Сброс'; }, 3000);
+    return;
+  }
+  discovered = new Set(BASE_IDS);
+  unlockedEras = new Set([0]);
+  selection = [];
+  failStreak = 0;
+  highlightedHintId = null;
+  resetArmed = false;
+  resetBtn.textContent = 'Сброс';
+  saveProgress();
+  labResult.textContent = 'Прогресс сброшен.';
+  labResult.className = 'lab-result';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
