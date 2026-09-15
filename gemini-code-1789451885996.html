@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cosmogenesis">
+<title>Cosmogenesis — Liquid Glass</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --era0:#8B5CF6;
+    --era1:#F43F5E;
+    --era2:#F59E0B;
+    --era3:#F97316;
+    --era4:#10B981;
+    --era5:#3B82F6;
+    --earth:#059669;
+
+    /* Плавная классическая длительность */
+    --hover-dur: 0.35s;
+  }
+
+  /* Тёмная тема */
+  [data-theme="dark"]{
+    --bg-base:#04060C;
+    --glass-surface:rgba(255, 255, 255, 0.055);
+    --glass-surface-card:rgba(20, 24, 38, 0.55);
+    --glass-border:rgba(255, 255, 255, 0.14);
+    --glass-border-light:rgba(255, 255, 255, 0.08);
+    --glass-shadow:0 16px 36px -10px rgba(0, 0, 0, 0.65), 0 0 1px 1px rgba(255, 255, 255, 0.08) inset;
+    
+    --text-primary:#FFFFFF;
+    --text-secondary:rgba(235, 235, 245, 0.64);
+    --text-tertiary:rgba(235, 235, 245, 0.38);
+    --blob-opacity:0.35;
+    --header-grad:linear-gradient(180deg, #FFFFFF 30%, rgba(255, 255, 255, 0.65) 100%);
+    --slot-empty:rgba(255, 255, 255, 0.04);
+    --slot-border:rgba(255, 255, 255, 0.18);
+    --badge-text:#05070E;
+    --lamp-bg:rgba(251, 191, 36, 0.08);
+    --lamp-text:#FDE68A;
+    --overlay-bg:radial-gradient(circle at center, var(--overlay-glow, rgba(167,139,250,0.22)) 0%, rgba(4,6,12,0.92) 80%);
+  }
+
+  /* Светлая тема */
+  [data-theme="light"]{
+    --bg-base:#F2F4F8;
+    --glass-surface:rgba(255, 255, 255, 0.55);
+    --glass-surface-card:rgba(255, 255, 255, 0.68);
+    --glass-border:rgba(255, 255, 255, 0.85);
+    --glass-border-light:rgba(0, 0, 0, 0.06);
+    --glass-shadow:0 16px 32px -8px rgba(0, 0, 0, 0.07), 0 0 1px 1px rgba(255, 255, 255, 0.9) inset;
+    
+    --text-primary:#0F172A;
+    --text-secondary:rgba(15, 23, 42, 0.68);
+    --text-tertiary:rgba(15, 23, 42, 0.4);
+    --blob-opacity:0.25;
+    --header-grad:linear-gradient(180deg, #0F172A 20%, rgba(15, 23, 42, 0.75) 100%);
+    --slot-empty:rgba(0, 0, 0, 0.03);
+    --slot-border:rgba(0, 0, 0, 0.14);
+    --badge-text:#FFFFFF;
+    --lamp-bg:rgba(245, 158, 11, 0.12);
+    --lamp-text:#B45309;
+    --overlay-bg:radial-gradient(circle at center, var(--overlay-glow, rgba(167,139,250,0.25)) 0%, rgba(242,244,248,0.94) 80%);
+  }
+
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+
+  html, body{
+    margin:0;
+    padding:0;
+    width:100%;
+    overflow-x:hidden;
+    background-color:var(--bg-base);
+    color:var(--text-primary);
+    font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Space Grotesk', 'Noto Sans SC', sans-serif;
+    min-height:100vh;
+    min-height:-webkit-fill-available;
+    -webkit-font-smoothing:antialiased;
+    user-select:none;
+    -webkit-user-select:none;
+    transition:background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .liquid-mesh{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:0;
+  }
+  .mesh-blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(90px);
+    opacity:var(--blob-opacity);
+    transition:opacity 0.4s ease;
+    animation:blob-drift 18s ease-in-out infinite alternate;
+  }
+  .mesh-blob-1{
+    width:380px; height:380px;
+    background:radial-gradient(circle, #8B5CF6, #3B82F6);
+    top:-80px; left:-60px;
+  }
+  .mesh-blob-2{
+    width:420px; height:420px;
+    background:radial-gradient(circle, #10B981, #06B6D4);
+    top:40%; right:-100px;
+    animation-duration:24s;
+    animation-delay:-6s;
+  }
+  .mesh-blob-3{
+    width:340px; height:340px;
+    background:radial-gradient(circle, #F43F5E, #F59E0B);
+    bottom:-80px; left:15%;
+    animation-duration:20s;
+    animation-delay:-12s;
+  }
+  @keyframes blob-drift{
+    0%{transform:translate(0, 0) scale(1);}
+    50%{transform:translate(40px, 35px) scale(1.1);}
+    100%{transform:translate(-30px, 50px) scale(0.95);}
+  }
+
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:1080px;
+    margin:0 auto;
+    padding-top:max(14px, env(safe-area-inset-top));
+    padding-bottom:max(36px, env(safe-area-inset-bottom));
+    padding-left:max(16px, env(safe-area-inset-left));
+    padding-right:max(16px, env(safe-area-inset-right));
+  }
+
+  .top-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+    gap:10px;
+  }
+
+  .theme-btn{
+    background:var(--glass-surface);
+    border:1px solid var(--glass-border);
+    border-radius:999px;
+    padding:6px 14px;
+    display:flex;
+    align-items:center;
+    gap:7px;
+    cursor:pointer;
+    color:var(--text-secondary);
+    font-size:12px;
+    font-weight:600;
+    backdrop-filter:blur(24px) saturate(180%);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    box-shadow:var(--glass-shadow);
+    transition:transform 0.15s ease, background 0.2s, color 0.2s;
+  }
+  .theme-btn:active{transform:scale(0.95);}
+  .theme-icon{
+    font-size:14px;
+    line-height:1;
+    display:inline-block;
+    transition:transform 0.3s ease;
+  }
+  .theme-btn:hover .theme-icon{
+    transform:rotate(20deg);
+  }
+
+  .lang-segmented{
+    position:relative;
+    display:flex;
+    background:var(--glass-surface);
+    border:1px solid var(--glass-border);
+    border-radius:999px;
+    padding:3px;
+    backdrop-filter:blur(24px) saturate(180%);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    box-shadow:var(--glass-shadow);
+  }
+  .lang-thumb{
+    position:absolute;
+    top:3px;
+    bottom:3px;
+    left:3px;
+    width:calc((100% - 6px) / 3);
+    background:var(--glass-border);
+    backdrop-filter:blur(16px);
+    border-radius:999px;
+    border:0.5px solid rgba(255, 255, 255, 0.4);
+    box-shadow:0 3px 10px rgba(0, 0, 0, 0.12);
+    transition:transform 0.25s ease;
+    pointer-events:none;
+  }
+  .lang-btn{
+    position:relative;
+    z-index:2;
+    background:none;
+    border:none;
+    color:var(--text-secondary);
+    font-size:12px;
+    font-weight:600;
+    font-family:inherit;
+    padding:5px 13px;
+    cursor:pointer;
+    border-radius:999px;
+    transition:color 0.2s ease;
+  }
+  .lang-btn.active{
+    color:var(--text-primary);
+    font-weight:700;
+  }
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--glass-border-light);
+  }
+  header h1{
+    font-size:24px;
+    font-weight:700;
+    margin:0 0 4px;
+    letter-spacing:-0.03em;
+    background:var(--header-grad);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  header p{
+    margin:0;
+    color:var(--text-secondary);
+    font-size:12.5px;
+    max-width:44ch;
+    line-height:1.35;
+  }
+  .progress-block{
+    min-width:115px;
+    text-align:right;
+  }
+  .progress-count{
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-primary);
+    margin-bottom:5px;
+    font-feature-settings:"tnum";
+  }
+  .progress-count span{color:var(--text-tertiary); font-weight:400;}
+  .progress-bar{
+    height:6px;
+    background:var(--slot-empty);
+    border-radius:999px;
+    overflow:hidden;
+    border:0.5px solid var(--glass-border-light);
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, #8B5CF6, #3B82F6, #10B981);
+    width:0%;
+    border-radius:999px;
+    box-shadow:0 0 10px rgba(59, 130, 246, 0.5);
+    transition:width 0.4s ease;
+  }
+
+  /* Стеклянный верстак */
+  .lab{
+    position:-webkit-sticky;
+    position:sticky;
+    top:max(8px, env(safe-area-inset-top));
+    z-index:100;
+    background:var(--glass-surface-card);
+    backdrop-filter:blur(32px) saturate(210%);
+    -webkit-backdrop-filter:blur(32px) saturate(210%);
+    border:1px solid var(--glass-border);
+    border-radius:24px;
+    padding:14px 16px;
+    margin-bottom:22px;
+    box-shadow:var(--glass-shadow);
+    transition:background 0.3s ease, border-color 0.3s ease;
+  }
+  .lab-inner{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+  }
+  .slot{
+    width:66px;
+    height:66px;
+    border-radius:18px;
+    background:var(--slot-empty);
+    border:1.5px dashed var(--slot-border);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--text-tertiary);
+    font-size:12px;
+    cursor:pointer;
+    transition:border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+  }
+  .slot:active{transform:scale(0.96);}
+  .slot.filled{
+    border-style:solid;
+    border-color:var(--slot-color, var(--glass-border));
+    background:var(--slot-bg, var(--glass-surface));
+    box-shadow:0 0 18px var(--slot-glow, rgba(0, 0, 0, 0.15)), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  }
+  .slot.filled .glyph{
+    color:var(--slot-color, var(--text-primary));
+    font-weight:700;
+    text-shadow:0 0 12px var(--slot-glow, transparent);
+  }
+  .slot .glyph{font-size:22px; line-height:1;}
+
+  .reactor{
+    position:relative;
+    width:46px;
+    height:46px;
+    flex:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .reactor-core{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    font-weight:600;
+    color:var(--text-tertiary);
+    background:var(--glass-surface);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(8px);
+    transition:all 0.3s ease;
+  }
+  .reactor.combining .reactor-core{
+    border-color:var(--text-primary);
+    color:var(--text-primary);
+    background:var(--glass-border);
+    box-shadow:0 0 20px rgba(139, 92, 246, 0.4);
+    animation:spin-pulse 0.6s linear infinite;
+  }
+  .reactor.success .reactor-core{
+    border-color:rgba(255, 255, 255, 0.8);
+    background:var(--result-color, var(--era2));
+    color:#FFFFFF;
+    box-shadow:0 0 28px var(--result-color, var(--era2));
+  }
+  @keyframes spin-pulse{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
+  }
+
+  .ring{
+    position:absolute;
+    top:50%; left:50%;
+    width:46px; height:46px;
+    margin:-23px 0 0 -23px;
+    border-radius:50%;
+    border:2px solid var(--result-color, var(--era2));
+    opacity:0;
+    pointer-events:none;
+  }
+  .ring.animate{
+    animation:ring-burst 0.7s ease-out forwards;
+  }
+  @keyframes ring-burst{
+    0%{transform:scale(0.6); opacity:1; border-width:4px;}
+    100%{transform:scale(3.2); opacity:0; border-width:1px;}
+  }
+
+  .fly-badge{
+    position:fixed;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:600;
+    color:#FFFFFF;
+    pointer-events:none;
+    z-index:9999;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+    transition:transform 0.38s ease-in-out, opacity 0.38s ease;
+  }
+
+  .lab-result{
+    max-width:520px;
+    margin:10px auto 0;
+    text-align:center;
+    font-size:12.5px;
+    color:var(--text-secondary);
+    line-height:1.4;
+    min-height:22px;
+    padding:4px 12px;
+    border-radius:10px;
+    transition:all 0.3s ease;
+  }
+  .lab-result.ok{
+    color:var(--lamp-text);
+    background:var(--lamp-bg);
+    box-shadow:0 0 10px rgba(245, 158, 11, 0.2);
+  }
+  .lab-result.bad{color:#EF4444;}
+  .lab-result.hint{color:var(--era2); font-weight:600;}
+  .lab-result.guide{color:var(--era0); font-weight:600;}
+
+  .lab-actions{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-top:10px;
+  }
+  .btn{
+    font-family:inherit;
+    background:var(--glass-surface);
+    border:1px solid var(--glass-border);
+    color:var(--text-secondary);
+    font-size:12px;
+    font-weight:500;
+    padding:6px 14px;
+    border-radius:999px;
+    cursor:pointer;
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    box-shadow:0 2px 8px rgba(0, 0, 0, 0.08);
+    transition:transform 0.15s ease, background 0.2s, color 0.2s;
+  }
+  .btn:active{
+    transform:scale(0.95);
+    color:var(--text-primary);
+  }
+  .btn.guide-btn{border-color:rgba(139, 92, 246, 0.4); color:var(--era0);}
+  .btn.danger:active{border-color:rgba(239, 68, 68, 0.5); color:#EF4444;}
+
+  .era{margin-bottom:24px;}
+  .era-head{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    margin-bottom:10px;
+    padding-left:4px;
+  }
+  .era-dot{
+    width:7px; height:7px; border-radius:50%;
+    box-shadow:0 0 8px currentColor;
+    flex:none;
+  }
+  .era-head h2{
+    font-size:14px;
+    font-weight:600;
+    margin:0;
+    letter-spacing:-0.01em;
+    color:var(--text-primary);
+  }
+  .era-head .count{
+    font-size:11.5px;
+    color:var(--text-tertiary);
+    font-feature-settings:"tnum";
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(80px, 1fr));
+    gap:8px;
+  }
+
+  /* Карточка: классическое, продленное увеличение без пружинных колебаний */
+  .tile{
+    background:var(--glass-surface);
+    border:1px solid var(--glass-border);
+    border-radius:18px;
+    padding:10px 4px 8px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    cursor:pointer;
+    text-align:center;
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    box-shadow:0 4px 14px -3px rgba(0, 0, 0, 0.1);
+    transform-origin:center center;
+    transition:
+      transform var(--hover-dur) ease-in-out,
+      border-color var(--hover-dur) ease-in-out,
+      background var(--hover-dur) ease-in-out,
+      box-shadow var(--hover-dur) ease-in-out;
+    will-change: transform, box-shadow;
+  }
+
+  /* Плавное продленное увеличение всего квадратика при наведении */
+  @media (hover: hover) and (pointer: fine){
+    .tile:not(.locked):hover{
+      transform:scale(1.08);
+      border-color:var(--tile-accent, var(--text-primary));
+      background:rgba(255, 255, 255, 0.12);
+      box-shadow:
+        0 14px 28px -6px rgba(0, 0, 0, 0.28),
+        0 0 16px var(--tile-accent-glow, transparent),
+        inset 0 1px 2px rgba(255, 255, 255, 0.35);
+      z-index:10;
+      transition:
+        transform var(--hover-dur) ease-out,
+        border-color var(--hover-dur) ease-out,
+        background var(--hover-dur) ease-out,
+        box-shadow var(--hover-dur) ease-out;
+    }
+    .tile:not(.locked):hover .name{
+      color:var(--text-primary);
+    }
+  }
+
+  .tile:active{
+    transform:scale(0.96) !important;
+    transition:transform 0.1s ease !important;
+  }
+
+  /* Выделение выбранного элемента */
+  .tile.selected{
+    border-color:var(--tile-accent, var(--text-primary));
+    background:var(--tile-accent-bg, rgba(255, 255, 255, 0.14));
+    box-shadow:0 0 18px var(--tile-accent-glow, rgba(0, 0, 0, 0.25)), inset 0 1px 2px rgba(255, 255, 255, 0.25);
+    transform:scale(1.03);
+  }
+  .tile.selected .name{
+    color:var(--text-primary);
+    font-weight:600;
+  }
+
+  .tile.tutorial-pulse{
+    border-color:rgba(139, 92, 246, 0.6);
+    animation:liquid-pulse 1.6s ease-in-out infinite alternate;
+  }
+  .tile.tutorial-pulse .badge{
+    box-shadow:0 0 16px rgba(139, 92, 246, 0.85);
+  }
+  @keyframes liquid-pulse{
+    0%{box-shadow:0 0 6px rgba(139, 92, 246, 0.3);}
+    100%{box-shadow:0 0 20px rgba(139, 92, 246, 0.75);}
+  }
+
+  .tile.hint-target{
+    border-color:rgba(245, 158, 11, 0.8);
+    animation:hint-liquid-pulse 1.4s ease-in-out infinite alternate;
+  }
+  .tile.hint-target .badge{
+    box-shadow:0 0 16px rgba(245, 158, 11, 0.9);
+  }
+  @keyframes hint-liquid-pulse{
+    0%{box-shadow:0 0 6px rgba(245, 158, 11, 0.35);}
+    100%{box-shadow:0 0 22px rgba(245, 158, 11, 0.9);}
+  }
+
+  .tile .badge{
+    width:34px; height:34px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px;
+    font-weight:600;
+    color:#FFFFFF;
+    box-shadow:0 4px 10px rgba(0,0,0,0.25);
+  }
+  .tile .name{
+    font-size:11px;
+    color:var(--text-secondary);
+    line-height:1.2;
+    word-break:break-word;
+    letter-spacing:-0.01em;
+    transition:color 0.2s ease;
+  }
+
+  .locked{
+    border:1px dashed var(--glass-border-light);
+    background:var(--slot-empty);
+    box-shadow:none;
+    opacity:0.35;
+    cursor:default;
+  }
+  .locked:hover{
+    transform:none !important;
+  }
+  .locked .badge{
+    background:var(--slot-empty);
+    color:var(--text-tertiary);
+    border:0.5px dashed var(--glass-border-light);
+    box-shadow:none;
+  }
+  .locked .name{color:var(--text-tertiary);}
+
+  .shake{animation:shake 0.35s ease-in-out;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-6px);}
+    75%{transform:translateX(6px);}
+  }
+
+  /* Полноэкранный оверлей отделов */
+  #eraOverlay{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    background:var(--overlay-bg);
+    backdrop-filter:blur(36px) saturate(200%);
+    -webkit-backdrop-filter:blur(36px) saturate(200%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.5s ease;
+    overflow:hidden;
+    padding:24px;
+    text-align:center;
+  }
+  #eraOverlay.active{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  .era-shockwave{
+    position:absolute;
+    width:140px;
+    height:140px;
+    border-radius:50%;
+    border:2px solid var(--overlay-color, var(--era0));
+    opacity:0;
+    pointer-events:none;
+  }
+  #eraOverlay.active .era-shockwave{
+    animation:era-pulse 2.2s ease-out infinite;
+  }
+  #eraOverlay.active .era-shockwave:nth-child(2){animation-delay:0.7s;}
+  #eraOverlay.active .era-shockwave:nth-child(3){animation-delay:1.4s;}
+  @keyframes era-pulse{
+    0%{transform:scale(0.3); opacity:0.9; border-width:6px;}
+    100%{transform:scale(6.5); opacity:0; border-width:1px;}
+  }
+
+  .era-particle{
+    position:absolute;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    pointer-events:none;
+  }
+
+  .era-overlay-content{
+    position:relative;
+    z-index:10;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .era-big-badge{
+    width:110px;
+    height:110px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:46px;
+    color:#FFFFFF;
+    margin-bottom:20px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.3);
+  }
+
+  .era-subtitle{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.2em;
+    color:var(--overlay-color, var(--era2));
+    margin-bottom:6px;
+    font-weight:600;
+  }
+  .era-overlay-title{
+    font-size:30px;
+    font-weight:700;
+    color:var(--text-primary);
+    margin:0 0 10px;
+    letter-spacing:-0.03em;
+  }
+  .era-overlay-desc{
+    font-size:14.5px;
+    color:var(--text-secondary);
+    max-width:330px;
+    line-height:1.45;
+    margin:0 0 24px;
+  }
+  .era-close-btn{
+    font-family:inherit;
+    background:var(--glass-surface-card);
+    border:1px solid var(--glass-border);
+    color:var(--text-primary);
+    font-size:13.5px;
+    font-weight:600;
+    padding:10px 28px;
+    border-radius:999px;
+    cursor:pointer;
+    backdrop-filter:blur(20px);
+    box-shadow:var(--glass-shadow);
+    transition:transform 0.15s ease;
+  }
+  .era-close-btn:active{transform:scale(0.95);}
+
+  /* Стартовое руководство */
+  #introModal{
+    position:fixed;
+    inset:0;
+    z-index:99998;
+    background:rgba(0, 0, 0, 0.45);
+    backdrop-filter:blur(28px) saturate(190%);
+    -webkit-backdrop-filter:blur(28px) saturate(190%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.3s ease;
+  }
+  #introModal.active{
+    opacity:1;
+    pointer-events:auto;
+  }
+  .intro-card{
+    background:var(--glass-surface-card);
+    border:1px solid var(--glass-border);
+    border-radius:26px;
+    padding:26px 22px;
+    max-width:360px;
+    width:100%;
+    text-align:center;
+    box-shadow:0 24px 60px -10px rgba(0, 0, 0, 0.3);
+  }
+  .intro-icon{
+    font-size:42px;
+    margin-bottom:12px;
+    display:inline-block;
+  }
+  .intro-card h3{
+    margin:0 0 8px;
+    font-size:21px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+    color:var(--text-primary);
+  }
+  .intro-card p{
+    font-size:13px;
+    color:var(--text-secondary);
+    line-height:1.45;
+    margin:0 0 18px;
+  }
+  .intro-steps{
+    text-align:left;
+    background:var(--glass-surface);
+    border:1px solid var(--glass-border-light);
+    border-radius:16px;
+    padding:14px 16px;
+    margin-bottom:20px;
+    font-size:12px;
+    color:var(--text-primary);
+    line-height:1.5;
+  }
+  .intro-steps div{
+    margin-bottom:8px;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .intro-steps div:last-child{margin-bottom:0;}
+  .intro-btn{
+    width:100%;
+    font-family:inherit;
+    background:linear-gradient(135deg, #8B5CF6, #3B82F6);
+    border:none;
+    color:#FFFFFF;
+    font-size:14px;
+    font-weight:700;
+    padding:12px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 8px 24px rgba(59, 130, 246, 0.35);
+    transition:transform 0.15s ease;
+  }
+  .intro-btn:active{transform:scale(0.97);}
+
+  footer{
+    margin-top:28px;
+    text-align:center;
+    color:var(--text-tertiary);
+    font-size:11.5px;
+    line-height:1.4;
+  }
+</style>
+</head>
+<body>
+
+<div class="liquid-mesh">
+  <div class="mesh-blob mesh-blob-1"></div>
+  <div class="mesh-blob mesh-blob-2"></div>
+  <div class="mesh-blob mesh-blob-3"></div>
+</div>
+
+<div class="wrap">
+
+  <div class="top-bar">
+    <button class="theme-btn" id="themeToggleBtn" aria-label="Toggle Theme">
+      <span class="theme-icon" id="themeIcon">🌙</span>
+      <span id="themeLabel">Dark</span>
+    </button>
+
+    <div class="lang-segmented">
+      <div class="lang-thumb" id="langThumb"></div>
+      <button class="lang-btn active" data-lang="ru">RU</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="zh">中文</button>
+    </div>
+  </div>
+
+  <header>
+    <div>
+      <h1 id="uiTitle">Космогенез</h1>
+      <p id="uiSubtitle">Создай Вселенную от кварков до жизни по законам физики ЦЕРНа.</p>
+    </div>
+    <div class="progress-block">
+      <div class="progress-count"><span id="discCount">7</span><span> / <span id="totalCount">42</span></span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </header>
+
+  <div class="lab">
+    <div class="lab-inner">
+      <div class="slot" id="slot0"><span class="glyph">?</span></div>
+      <div class="reactor" id="reactor">
+        <div class="ring" id="ring"></div>
+        <div class="reactor-core" id="reactorCore">+</div>
+      </div>
+      <div class="slot" id="slot1"><span class="glyph">?</span></div>
+    </div>
+    <div class="lab-result" id="labResult">Выбери два элемента</div>
+    <div class="lab-actions">
+      <button class="btn guide-btn" id="guideBtn">? Обучение</button>
+      <button class="btn" id="clearBtn">Очистить</button>
+      <button class="btn danger" id="resetBtn">Сброс</button>
+    </div>
+  </div>
+
+  <div id="eras"></div>
+
+  <footer id="uiFooter">Вдохновлено физикой ЦЕРНа. Финал эволюции: создание Земли.</footer>
+
+</div>
+
+<div id="introModal">
+  <div class="intro-card">
+    <span class="intro-icon">🪐</span>
+    <h3 id="introTitle">Как играть</h3>
+    <p id="introDesc">Вы находитесь в точке Большого взрыва. Ваша цель — объединять частицы и силы, чтобы воссоздать материю, звёзды и саму жизнь.</p>
+    <div class="intro-steps" id="introSteps">
+      <div><span>1️⃣</span> <span><strong>Выбирайте элементы:</strong> нажимайте на любые открытые плитки внизу.</span></div>
+      <div><span>2️⃣</span> <span><strong>Синтез:</strong> поместите две частицы на верстак — реактор проверит их реакцию.</span></div>
+      <div><span>3️⃣</span> <span><strong>Подсветка:</strong> стартовые частицы сейчас подсвечены сиянием для лёгкого старта!</span></div>
+    </div>
+    <button class="intro-btn" id="startTutorialBtn">Понятно, начать!</button>
+  </div>
+</div>
+
+<div id="eraOverlay">
+  <div class="era-shockwave"></div>
+  <div class="era-shockwave"></div>
+  <div class="era-shockwave"></div>
+  <div class="era-overlay-content">
+    <div class="era-subtitle" id="eraSubtitle">Новый рубеж эволюции</div>
+    <div class="era-big-badge" id="eraBigBadge">⚛</div>
+    <div class="era-overlay-title" id="eraOverlayTitle">Адроны</div>
+    <div class="era-overlay-desc" id="eraOverlayDesc">Кварки соединились в протоны и нейтроны.</div>
+    <button class="era-close-btn" id="eraCloseBtn">Продолжить</button>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if(tg){
+  tg.ready();
+  tg.expand();
+}
+
+function haptic(type){
+  if(!tg?.HapticFeedback) return;
+  if(type === 'tap') tg.HapticFeedback.impactOccurred('light');
+  if(type === 'success') tg.HapticFeedback.notificationOccurred('success');
+  if(type === 'error') tg.HapticFeedback.notificationOccurred('error');
+}
+
+// ----------------- ТЕМА ОФОРМЛЕНИЯ -----------------
+let currentTheme = 'dark';
+try {
+  const savedTheme = localStorage.getItem('cosmo_theme');
+  if(savedTheme && ['dark', 'light'].includes(savedTheme)){
+    currentTheme = savedTheme;
+  } else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches){
+    currentTheme = 'light';
+  }
+} catch(e){}
+
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+const themeIcon = document.getElementById('themeIcon');
+const themeLabel = document.getElementById('themeLabel');
+
+function applyTheme(theme){
+  currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  try {
+    localStorage.setItem('cosmo_theme', theme);
+  } catch(e){}
+
+  if(theme === 'dark'){
+    themeIcon.textContent = '🌙';
+    themeLabel.textContent = currentLang === 'ru' ? 'Тёмная' : (currentLang === 'zh' ? '深色' : 'Dark');
+    if(tg){
+      tg.setHeaderColor('#04060C');
+      tg.setBackgroundColor('#04060C');
+    }
+  } else {
+    themeIcon.textContent = '☀️';
+    themeLabel.textContent = currentLang === 'ru' ? 'Светлая' : (currentLang === 'zh' ? '浅色' : 'Light');
+    if(tg){
+      tg.setHeaderColor('#F2F4F8');
+      tg.setBackgroundColor('#F2F4F8');
+    }
+  }
+}
+
+themeToggleBtn.addEventListener('click', ()=>{
+  haptic('tap');
+  const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(nextTheme);
+});
+
+// ----------------- ЯЗЫК -----------------
+let currentLang = 'ru';
+try {
+  const savedLang = localStorage.getItem('cosmo_lang_liquid');
+  if(savedLang && ['ru','en','zh'].includes(savedLang)) currentLang = savedLang;
+} catch(e){}
+
+const I18N = {
+  ru: {
+    title: 'Космогенез',
+    subtitle: 'Создай Вселенную от кварков до жизни по законам физики ЦЕРНа.',
+    footer: 'Вдохновлено физикой ЦЕРНа. Финал эволюции: создание Земли.',
+    selectTwo: 'Выбери два элемента',
+    btnGuide: '? Обучение',
+    btnClear: 'Очистить',
+    btnReset: 'Сброс',
+    btnSure: 'Точно?',
+    resetDone: 'Прогресс сброшен.',
+    hintPrefix: '💡 Подсказка: попробуй соединить «',
+    hintSuffix: '» с чем-то ещё.',
+    noReact: 'Эти элементы не взаимодействуют.',
+    tryOther: 'Попробуй другие комбинации.',
+    step1: '✨ Шаг 1: Нажмите на сияющий Кварк (q)',
+    step2: '✨ Шаг 2: Нажмите ещё раз на Кварк или Глюон',
+    discovered: '✨ Открыто: ',
+    formedAgain: 'Снова получено: ',
+    introTitle: 'Как играть',
+    introDesc: 'Вы находитесь в точке Большого взрыва. Объединяйте частицы и силы, чтобы воссоздать звёзды, планеты и саму жизнь.',
+    introStep1: '<strong>Выбирайте элементы:</strong> нажимайте на любые открытые плитки снизу.',
+    introStep2: '<strong>Синтез:</strong> поместите две частицы на верстак — реактор проверит реакцию.',
+    introStep3: '<strong>Стеклянный индикатор:</strong> стартовые элементы пульсируют для плавного старта!',
+    introBtn: 'Понятно, начать!',
+    eraBanner: 'Новый рубеж эволюции',
+    eraContinue: 'Продолжить'
+  },
+  en: {
+    title: 'Cosmogenesis',
+    subtitle: 'Recreate the Universe from quarks to intelligent life via CERN physics.',
+    footer: 'Inspired by CERN cosmic timeline. Evolution finale: creating Earth.',
+    selectTwo: 'Select two elements',
+    btnGuide: '? Tutorial',
+    btnClear: 'Clear',
+    btnReset: 'Reset',
+    btnSure: 'Sure?',
+    resetDone: 'Progress reset.',
+    hintPrefix: '💡 Hint: Try combining "',
+    hintSuffix: '" with something else.',
+    noReact: 'These elements do not react.',
+    tryOther: 'Try different combinations.',
+    step1: '✨ Step 1: Tap the glowing Quark (q)',
+    step2: '✨ Step 2: Tap Quark again or Gluon',
+    discovered: '✨ Discovered: ',
+    formedAgain: 'Formed again: ',
+    introTitle: 'How to Play',
+    introDesc: 'You are at the origin of the Big Bang. Fuse elementary particles and physical forces to synthesize stars, planets, and life.',
+    introStep1: '<strong>Pick elements:</strong> tap any discovered element from the list below.',
+    introStep2: '<strong>Reactor:</strong> place two particles on the workbench to test their interaction.',
+    introStep3: '<strong>Liquid glow:</strong> fundamental starter particles are illuminated for you!',
+    introBtn: 'Understood, start!',
+    eraBanner: 'New Evolutionary Era',
+    eraContinue: 'Continue'
+  },
+  zh: {
+    title: '宇宙创生',
+    subtitle: '遵循欧洲核子研究中心(CERN)宇宙时间线，从夸克创造整个宇宙与生命。',
+    footer: '源自真实粒子物理学。终极演化：创造地球。',
+    selectTwo: '请选择两种元素',
+    btnGuide: '? 玩法指南',
+    btnClear: '清空',
+    btnReset: '重置',
+    btnSure: '确认?',
+    resetDone: '进度已重置。',
+    hintPrefix: '💡 提示：尝试将“',
+    hintSuffix: '”与其他物质化合。',
+    noReact: '这两种元素暂无反应。',
+    tryOther: '尝试其他可能的粒子组合。',
+    step1: '✨ 步骤1：点击正在发光的“夸克 (q)”',
+    step2: '✨ 步骤2：再次点击夸克或胶子',
+    discovered: '✨ 发现新物质：',
+    formedAgain: '再次合成：',
+    introTitle: '游戏指南',
+    introDesc: '你置身于大爆炸最初的奇点。聚合基本粒子与四种基本作用力，一步步诞生恒星、行星与智慧生命。',
+    introStep1: '<strong>选择元素：</strong>点击下方已解锁的粒子卡片。',
+    introStep2: '<strong>反应堆：</strong>将两种元素送入合成台，检测物理/化学相互作用。',
+    introStep3: '<strong>流光提示：</strong>初始基本粒子正散发微光，指引初次化合！',
+    introBtn: '明白，即刻启程！',
+    eraBanner: '全新演化阶段',
+    eraContinue: '继续探索'
+  }
+};
+
+const ELEMENTS = {
+  quark: {
+    glyph:'q', era:0,
+    ru:{name:'Кварк', fact:'Кварки — фундаментальные неделимые блоки протонов и нейтронов.'},
+    en:{name:'Quark', fact:'Fundamental elementary building blocks of protons and neutrons.'},
+    zh:{name:'夸克', fact:'强子结构的基本单元，目前已知最小的基本粒子之一。'}
+  },
+  gluon: {
+    glyph:'g', era:0,
+    ru:{name:'Глюон', fact:'Глюоны переносят сильное ядерное взаимодействие и склеивают кварки.'},
+    en:{name:'Gluon', fact:'Mediates strong nuclear force binding quarks together.'},
+    zh:{name:'胶子', fact:'传递强相互作用的规范玻色子，将夸克紧紧黏合在一起。'}
+  },
+  electron: {
+    glyph:'e⁻', era:0,
+    ru:{name:'Электрон', fact:'Электроны формируют оболочки атомов и определяют свойства материи.'},
+    en:{name:'Electron', fact:'Forms electron shells defining chemical bonds.'},
+    zh:{name:'电子', fact:'带有负电荷的轻子，构筑原子外层并决定所有化学性质。'}
+  },
+  photon: {
+    glyph:'γ', era:0,
+    ru:{name:'Фотон', fact:'Фотон — безмассовый квант света и электромагнитного поля.'},
+    en:{name:'Photon', fact:'Massless quantum of light and electromagnetic gauge boson.'},
+    zh:{name:'光子', fact:'电磁相互作用的媒介粒子，以光速飞驰的光量子。'}
+  },
+  neutrino: {
+    glyph:'ν', era:0,
+    ru:{name:'Нейтрино', fact:'Нейтрино почти беспрепятственно пронзают планеты и звёзды.'},
+    en:{name:'Neutrino', fact:'Nearly massless particles penetrating planets and stars.'},
+    zh:{name:'中微子', fact:'质量极微小的中性轻子，可自由穿透整颗恒星与行星。'}
+  },
+  gravity: {
+    glyph:'∇', era:0,
+    ru:{name:'Гравитация', fact:'Гравитация управляет крупномасштабной структурой космоса.'},
+    en:{name:'Gravity', fact:'Shapes large-scale spacetime topology and cosmic expansion.'},
+    zh:{name:'引力', fact:'弯曲时空的普遍吸引力，统治整个宇宙的大尺度结构。'}
+  },
+  time: {
+    glyph:'⏳', era:0,
+    ru:{name:'Время', fact:'Пространство и время родились одновременно в момент Большого взрыва.'},
+    en:{name:'Time', fact:'Spacetime was unleashed simultaneously during the Big Bang.'},
+    zh:{name:'时间', fact:'与三维空间一同诞生于大爆炸奇点，推动宇宙不可逆演化。'}
+  },
+
+  diquark: {
+    glyph:'qq', era:1,
+    ru:{name:'Дикварк', fact:'Два связанных кварка — промежуточное звено на пути к барионам.'},
+    en:{name:'Diquark', fact:'Bound pair of quarks in an intermediate state.'},
+    zh:{name:'双夸克', fact:'紧密相连的两个夸克组成的中间态结构。'}
+  },
+  proton: {
+    glyph:'p⁺', era:1,
+    ru:{name:'Протон', fact:'Стабильный адрон из трёх кварков, скреплённых глюонами.'},
+    en:{name:'Proton', fact:'Composite baryon containing three bound valence quarks.'},
+    zh:{name:'质子', fact:'由两个上夸克和一个下夸克组成的超稳定重子。'}
+  },
+  neutron: {
+    glyph:'n⁰', era:1,
+    ru:{name:'Нейтрон', fact:'Нейтральный нуклон, нестабильный вне атомного ядра.'},
+    en:{name:'Neutron', fact:'Neutral nucleon decaying outside stable atomic nuclei.'},
+    zh:{name:'中子', fact:'不带电荷的核子，在原子核外部约15分钟衰变。'}
+  },
+  qgp: {
+    glyph:'QGP', era:1,
+    ru:{name:'Кварк-плазма', fact:'Сверхгорячее состояние первых микросекунд Вселенной.'},
+    en:{name:'QGP Plasma', fact:'Extreme primordial state from early microseconds.'},
+    zh:{name:'夸克胶子等离子体', fact:'大爆炸最初微秒内存在的超高温超稠密原生物质。'}
+  },
+  radiation: {
+    glyph:'∿', era:1,
+    ru:{name:'Излучение', fact:'Плотность излучения определяла расширение раннего космоса.'},
+    en:{name:'Radiation', fact:'Primordial thermal radiation driving initial expansion.'},
+    zh:{name:'电磁辐射', fact:'由光子构成的能量海洋，曾主导早期宇宙的膨胀速率。'}
+  },
+  cnb: {
+    glyph:'νCB', era:1,
+    ru:{name:'Реликт. нейтрино', fact:'Древнейший космический фон из первых секунд космогенеза.'},
+    en:{name:'Relic Neutrinos', fact:'Decoupled primordial neutrino background from second one.'},
+    zh:{name:'宇宙中微子背景', fact:'在大爆炸后仅一秒脱耦留存至今的原初宇宙印记。'}
+  },
+
+  hydrogen: {
+    glyph:'H', era:2,
+    ru:{name:'Водород', fact:'Самый распространённый элемент (~75% обычного вещества).'},
+    en:{name:'Hydrogen', fact:'Most abundant baryonic element (~75% of ordinary mass).'},
+    zh:{name:'氢', fact:'宇宙中最丰度最高的元素，占据约75%的重子质量。'}
+  },
+  deuterium: {
+    glyph:'D', era:2,
+    ru:{name:'Дейтерий', fact:'Тяжёлый изотоп водорода первичного нуклеосинтеза.'},
+    en:{name:'Deuterium', fact:'Heavy stable hydrogen isotope forged in nucleosynthesis.'},
+    zh:{name:'氘', fact:'含有一个中子的重氢同位素，源自原初太初核聚变。'}
+  },
+  helium3: {
+    glyph:'³He', era:2,
+    ru:{name:'Гелий-3', fact:'Редкий лёгкий изотоп гелия из эпохи зарождения первых ядер.'},
+    en:{name:'Helium-3', fact:'Rare light helium isotope from early Big Bang synthesis.'},
+    zh:{name:'氦-3', fact:'稀有的稳定轻同位素，由质子与氘核聚合而成。'}
+  },
+  helium4: {
+    glyph:'⁴He', era:2,
+    ru:{name:'Гелий-4', fact:'Составляет около четверти массы вещества Вселенной.'},
+    en:{name:'Helium-4', fact:'Comprises roughly a quarter of all observable baryonic mass.'},
+    zh:{name:'氦-4', fact:'由双质子双中子构成的超稳定α粒子核，占宇宙总质量约25%。'}
+  },
+  h2: {
+    glyph:'H₂', era:2,
+    ru:{name:'Газ H₂', fact:'Молекулярный водород, коллапсирующий в протозвёздные облака.'},
+    en:{name:'H₂ Gas', fact:'Molecular hydrogen gas that collapses to initiate stars.'},
+    zh:{name:'氢分子', fact:'以共价键结合的双原子氢气，是星云冷凝的核心气体。'}
+  },
+  beryllium: {
+    glyph:'Be', era:2,
+    ru:{name:'Бериллий', fact:'Резонансное звено, открывающее путь к рождению углерода.'},
+    en:{name:'Beryllium', fact:'Crucial resonance intermediate leading directly toward carbon.'},
+    zh:{name:'铍', fact:'通过两个氦-4核聚合产生的极其短暂却关键的共振媒介。'}
+  },
+  carbon: {
+    glyph:'C', era:2,
+    ru:{name:'Углерод', fact:'Фундамент органической химии, выкованный внутри звёзд.'},
+    en:{name:'Carbon', fact:'Forged inside massive stellar cores via triple-alpha pathway.'},
+    zh:{name:'碳', fact:'生命有机物的骨架元素，由恒星深处3α核聚变合成。'}
+  },
+
+  gas_cloud: {
+    glyph:'☁', era:3,
+    ru:{name:'Газовое облако', fact:'Массивный резервуар водорода, сжимающийся под гравитацией.'},
+    en:{name:'Gas Cloud', fact:'Giant reservoirs of hydrogen collapsing under self-gravity.'},
+    zh:{name:'巨分子气体云', fact:'横跨数十光年的冷氢气云团，在自引力下蓄势聚缩。'}
+  },
+  nebula: {
+    glyph:'✵', era:3,
+    ru:{name:'Туманность', fact:'Звёздная колыбель из плотного газа и космической пыли.'},
+    en:{name:'Nebula', fact:'Interstellar dust serving as active stellar nurseries.'},
+    zh:{name:'星云', fact:'光芒绚烂的宇宙孕育所，无数年轻恒星在此破茧而出。'}
+  },
+  protostar: {
+    glyph:'☆', era:3,
+    ru:{name:'Протозвезда', fact:'Плотное ядро, разогревающееся до термоядерного синтеза.'},
+    en:{name:'Protostar', fact:'Accreting core heating toward thermonuclear ignition.'},
+    zh:{name:'原恒星', fact:'快速吸积质量的星胚核心，内部剧烈升温逼近核点火线。'}
+  },
+  star: {
+    glyph:'★', era:3,
+    ru:{name:'Звезда', fact:'Термоядерный реактор, сплавляющий водород в гелий.'},
+    en:{name:'Star', fact:'Luminous celestial engine burning hydrogen into helium.'},
+    zh:{name:'恒星', fact:'在辐射压与引力平衡中燃烧数十亿年的璀璨宇宙核熔炉。'}
+  },
+  red_giant: {
+    glyph:'●', era:3,
+    ru:{name:'Красный гигант', fact:'Раздувшаяся звезда на исходе запасов водорода в ядре.'},
+    en:{name:'Red Giant', fact:'Expanded dying star consuming its core helium reserve.'},
+    zh:{name:'红巨星', fact:'氢燃料耗尽后体积暴增数百倍的老年演化恒星。'}
+  },
+  oxygen: {
+    glyph:'O', era:3,
+    ru:{name:'Кислород', fact:'Образуется слиянием гелия и углерода в недрах звёзд.'},
+    en:{name:'Oxygen', fact:'Synthesized by fusion of carbon with alpha particles.'},
+    zh:{name:'氧', fact:'红巨星内部碳与氦核二次聚变的产物，生命氧化还原之基石。'}
+  },
+  iron: {
+    glyph:'Fe', era:3,
+    ru:{name:'Железо', fact:'Финал термоядерного синтеза с выделением чистой энергии.'},
+    en:{name:'Iron', fact:'Final exothermic stage of stellar nucleosynthesis.'},
+    zh:{name:'铁', fact:'比结合能最高、放热聚变极限元素，也是大质量恒星墓碑。'}
+  },
+  supernova: {
+    glyph:'✺', era:3,
+    ru:{name:'Сверхновая', fact:'Взрыв звезды, засевающий космос тяжёлыми металлами.'},
+    en:{name:'Supernova', fact:'Cataclysmic explosion seeding interstellar space with metals.'},
+    zh:{name:'超新星爆发', fact:'垂死恒星坍缩产生的灭世冲击波，将重元素播撒入深空。'}
+  },
+  black_hole: {
+    glyph:'⬤', era:3,
+    ru:{name:'Чёрная дыра', fact:'Область гравитации, непреодолимая даже для света.'},
+    en:{name:'Black Hole', fact:'Infinite curvature singularity where even light cannot escape.'},
+    zh:{name:'黑洞', fact:'时空极致扭曲之所，连光线也无法跨越事件视界。'}
+  },
+  neutron_star: {
+    glyph:'◉', era:3,
+    ru:{name:'Нейтр. звезда', fact:'Сверхплотное ядро погибшей массивной звезды.'},
+    en:{name:'Neutron Star', fact:'Hyperdense stellar remnant backed by neutron degeneracy.'},
+    zh:{name:'中子星', fact:'由中子简并压支撑的极高密度残骸，一立方厘米重达数亿吨。'}
+  },
+  gold: {
+    glyph:'Au', era:3,
+    ru:{name:'Золото', fact:'Тяжёлый элемент, рождающийся при слиянии нейтронных звёзд.'},
+    en:{name:'Gold', fact:'Forged primarily via rapid r-process in kilonova collisions.'},
+    zh:{name:'黄金', fact:'双中子星碰撞（千新星）快中子捕获合成的稀世贵金属。'}
+  },
+
+  water: {
+    glyph:'H₂O', era:4,
+    ru:{name:'Вода', fact:'Универсальный полярный растворитель для белковой жизни.'},
+    en:{name:'Water', fact:'Universal polar solvent requisite for organic biochemistry.'},
+    zh:{name:'水', fact:'宇宙间最优质的极性有机溶剂，生命分子的摇篮。'}
+  },
+  co2: {
+    glyph:'CO₂', era:4,
+    ru:{name:'CO₂', fact:'Важный парниковый компонент планетарных атмосфер.'},
+    en:{name:'CO₂', fact:'Crucial greenhouse compound stabilizing planetary climate.'},
+    zh:{name:'二氧化碳', fact:'维持行星温室效应与碳循环不可缺少的成分。'}
+  },
+  planet: {
+    glyph:'◐', era:4,
+    ru:{name:'Планета', fact:'Твёрдое тело, сконденсированное из аккреционного диска звезды.'},
+    en:{name:'Planet', fact:'Spherical body formed within protoplanetary debris disc.'},
+    zh:{name:'行星', fact:'在原行星盘尘埃吸积中诞生的球体天体。'}
+  },
+  ocean: {
+    glyph:'≈', era:4,
+    ru:{name:'Океан', fact:'Жидкая среда для зарождения первых биомолекулярных сетей.'},
+    en:{name:'Ocean', fact:'Liquid basins nurturing prebiotic catalytic networks.'},
+    zh:{name:'原始海洋', fact:'液态水圈形成的避风港，孕育最早的前生物催化链。'}
+  },
+  life: {
+    glyph:'✦', era:4,
+    ru:{name:'Жизнь', fact:'Высшая ступень термодинамической самоорганизации материи.'},
+    en:{name:'Life', fact:'Thermodynamic emergence of self-replicating information.'},
+    zh:{name:'生命', fact:'耗散结构与负熵演化的最高峰，具备自我复制与代谢能力。'}
+  },
+  star_cluster: {
+    glyph:'✳', era:4,
+    ru:{name:'Скопление звёзд', fact:'Группа звёзд, рождённых синхронно из одной туманности.'},
+    en:{name:'Star Cluster', fact:'Gravitationally bound group of co-eval stellar siblings.'},
+    zh:{name:'星团', fact:'同一星云中同时诞生并通过引力维系的恒星群落。'}
+  },
+  galaxy: {
+    glyph:'✧', era:4,
+    ru:{name:'Галактика', fact:'Остров из сотен миллиардов звёзд, газа и тёмной материи.'},
+    en:{name:'Galaxy', fact:'Cosmic island of hundreds of billions of stars and halo.'},
+    zh:{name:'星系', fact:'由千亿颗恒星、星际介质与暗物质晕组成的巨大旋转岛屿。'}
+  },
+
+  dark_matter: {
+    glyph:'?', era:5,
+    ru:{name:'Тёмная материя', fact:'Невидимая масса, удерживающая галактики от распада.'},
+    en:{name:'Dark Matter', fact:'Invisible non-baryonic mass stabilizing galactic rotation.'},
+    zh:{name:'暗物质', fact:'不参与电磁相互作用的幽灵物质，提供维系星系旋转的关键引力。'}
+  },
+  grav_waves: {
+    glyph:'∿∿', era:5,
+    ru:{name:'Грав. волны', fact:'Рябь пространства-времени от столкновения чёрных дыр.'},
+    en:{name:'Grav. Waves', fact:'Spacetime perturbations from binary compact coalescences.'},
+    zh:{name:'引力波', fact:'双黑洞碰撞掀起的时空涟漪，以光速震荡宇宙基质。'}
+  },
+  universe: {
+    glyph:'Ω', era:5,
+    ru:{name:'Вселенная', fact:'Путь пройден: от субатомных кварков до разума.'},
+    en:{name:'Universe', fact:'Totality of existence: from subatomic quarks to consciousness.'},
+    zh:{name:'宇宙', fact:'万物之总览：从最微弱的亚原子夸克演进至沉思的思维。'}
+  },
+
+  earth: {
+    glyph:'♁', era:6,
+    ru:{name:'Земля', fact:'Кульминация космогенеза: обитаемый дом человечества.'},
+    en:{name:'Earth', fact:'The pinnacle of cosmogenesis: the living home of humanity.'},
+    zh:{name:'地球', fact:'宇宙创生的终极丰碑：深空之中生机盎然的唯一蔚蓝家园。'}
+  }
+};
+
+const RECIPE_LIST = [
+  ['quark','quark','diquark'],
+  ['diquark','quark','proton'],
+  ['diquark','electron','neutron'],
+  ['quark','gluon','qgp'],
+  ['photon','photon','radiation'],
+  ['neutrino','neutrino','cnb'],
+  ['proton','electron','hydrogen'],
+  ['proton','neutron','deuterium'],
+  ['deuterium','proton','helium3'],
+  ['deuterium','deuterium','helium4'],
+  ['hydrogen','hydrogen','h2'],
+  ['helium4','helium4','beryllium'],
+  ['beryllium','helium4','carbon'],
+  ['hydrogen','gravity','gas_cloud'],
+  ['gas_cloud','gas_cloud','nebula'],
+  ['nebula','gravity','protostar'],
+  ['protostar','time','star'],
+  ['star','helium4','red_giant'],
+  ['red_giant','carbon','oxygen'],
+  ['star','carbon','iron'],
+  ['red_giant','gravity','supernova'],
+  ['supernova','time','black_hole'],
+  ['supernova','gravity','neutron_star'],
+  ['supernova','carbon','gold'],
+  ['hydrogen','oxygen','water'],
+  ['carbon','oxygen','co2'],
+  ['iron','gravity','planet'],
+  ['planet','water','ocean'],
+  ['ocean','time','life'],
+  ['star','star','star_cluster'],
+  ['star_cluster','gravity','galaxy'],
+  ['gravity','cnb','dark_matter'],
+  ['black_hole','black_hole','grav_waves'],
+  ['galaxy','dark_matter','universe'],
+  ['planet','life','earth']
+];
+
+const RECIPES = {};
+RECIPE_LIST.forEach(([a,b,r])=>{
+  RECIPES[[a,b].sort().join('+')] = r;
+});
+
+const ERAS = [
+  {
+    id:0, color:'var(--era0)', glow:'rgba(139,92,246,0.3)', glyph:'q',
+    ru:{name:'Первые частицы', desc:'Фундаментальные поля и кванты ранней Вселенной.'},
+    en:{name:'First Particles', desc:'Fundamental quantum fields and particles of the nascent cosmos.'},
+    zh:{name:'原初微粒', desc:'宇宙初生阶段最基本的量子场与规范玻色子。'}
+  },
+  {
+    id:1, color:'var(--era1)', glow:'rgba(244,63,94,0.35)', glyph:'p⁺',
+    ru:{name:'Адроны', desc:'Остывание космоса позволило глюонам связать кварки в первые протоны и нейтроны.'},
+    en:{name:'Hadrons', desc:'Cooling universe allowed gluons to bind quarks into stable protons and neutrons.'},
+    zh:{name:'强子纪元', desc:'宇宙冷却促使胶子束缚夸克，形成首批稳定的质子与中子。'}
+  },
+  {
+    id:2, color:'var(--era2)', glow:'rgba(245,158,11,0.35)', glyph:'⁴He',
+    ru:{name:'Нуклеосинтез', desc:'Первичный ядерный реактор зажёгся, синтезировав ядра водорода, гелия и углерода.'},
+    en:{name:'Nucleosynthesis', desc:'The primordial furnace synthesized light nuclei: hydrogen, helium, and carbon seeds.'},
+    zh:{name:'太初核合成', desc:'原生核反应堆点火，铸就氢同位素、氦核及微量轻元素。'}
+  },
+  {
+    id:3, color:'var(--era3)', glow:'rgba(249,115,22,0.35)', glyph:'★',
+    ru:{name:'Звёзды и элементы', desc:'Гравитация зажгла термоядерные печи звёзд, кующие кислород, железо и золото.'},
+    en:{name:'Stars & Elements', desc:'Gravity ignited stellar engines forging oxygen, iron, and heavy metals.'},
+    zh:{name:'恒星与重元素', desc:'引力塌缩点燃第一代恒星，聚变出氧、铁与超新星中的黄金。'}
+  },
+  {
+    id:4, color:'var(--era4)', glow:'rgba(16,185,129,0.35)', glyph:'✦',
+    ru:{name:'Планеты и жизнь', desc:'Холодные миры сконденсировали воду, и началась химическая эволюция к жизни.'},
+    en:{name:'Planets & Life', desc:'Cooled planets condensed liquid water, kickstarting prebiotic biochemistry.'},
+    zh:{name:'行星与生命', desc:'坚实岩石天体凝聚液态水圈，化学分子链涌现出生命奇迹。'}
+  },
+  {
+    id:5, color:'var(--era5)', glow:'rgba(59,130,246,0.35)', glyph:'Ω',
+    ru:{name:'Тайны космоса', desc:'Галактики объединились тёмной материей и гравитационными волнами во Вселенную.'},
+    en:{name:'Cosmic Mysteries', desc:'Dark matter halos and gravitational ripples weave billions of galaxies into one cosmos.'},
+    zh:{name:'宇宙秘境', desc:'暗物质晕与引力波织就宏伟网格，成百上千亿星系汇成浩瀚大宇宙。'}
+  },
+  {
+    id:6, color:'var(--earth)', glow:'rgba(5,150,105,0.4)', glyph:'♁',
+    ru:{name:'Венец творения', desc:'Слияние планеты и жизни породило биосферу Земли — дом разумных наблюдателей!'},
+    en:{name:'Crown of Creation', desc:'The synergy of geology and biology formed Earth — the home of conscious observers!'},
+    zh:{name:'造物冠冕', desc:'地质演变与有机生命的终极融合：蔚蓝地球诞生，智者于此回望星空！'}
+  }
+];
+
+// СТРОГО 7 ЭЛЕМЕНТОВ НА СТАРТЕ
+const BASE_IDS = ['quark', 'gluon', 'electron', 'photon', 'neutrino', 'gravity', 'time'];
+let discovered = new Set(BASE_IDS);
+let unlockedEras = new Set([0]);
+let tutorialActive = true;
+
+// Полная очистка устаревших ключей от предыдущих билдов
+['cosmo_tma_save', 'cosmo_tma_save_v2', 'cosmo_tma_save_v3', 'cosmo_tma_save_v4', 'cosmo_tma_save_v5', 'cosmo_liquid_save', 'cosmo_liquid_v6'].forEach(k => {
+  try { localStorage.removeItem(k); } catch(e){}
+});
+
+// Загрузка строго проверенных данных
+try {
+  const saved = localStorage.getItem('cosmo_liquid_v7');
+  if(saved) {
+    const data = JSON.parse(saved);
+    if(data.discovered && Array.isArray(data.discovered)) {
+      discovered = new Set(data.discovered);
+      // Гарантия наличия базы
+      BASE_IDS.forEach(id => discovered.add(id));
+    }
+    if(data.unlockedEras && Array.isArray(data.unlockedEras)) {
+      unlockedEras = new Set(data.unlockedEras);
+    }
+    tutorialActive = data.tutorialActive !== undefined ? data.tutorialActive : false;
+  }
+} catch(e){}
+
+let selection = [];
+let failStreak = 0;
+let highlightedHintId = null;
+let lastDiscoveredId = null;
+const totalCount = Object.keys(ELEMENTS).length;
+
+const erasContainer = document.getElementById('eras');
+const discCountEl = document.getElementById('discCount');
+const totalCountEl = document.getElementById('totalCount');
+const progressFill = document.getElementById('progressFill');
+const labResult = document.getElementById('labResult');
+const slotEls = [document.getElementById('slot0'), document.getElementById('slot1')];
+const reactor = document.getElementById('reactor');
+const reactorCore = document.getElementById('reactorCore');
+const ring = document.getElementById('ring');
+
+const introModal = document.getElementById('introModal');
+const startTutorialBtn = document.getElementById('startTutorialBtn');
+const guideBtn = document.getElementById('guideBtn');
+const clearBtn = document.getElementById('clearBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+const eraOverlay = document.getElementById('eraOverlay');
+const eraBigBadge = document.getElementById('eraBigBadge');
+const eraOverlayTitle = document.getElementById('eraOverlayTitle');
+const eraOverlayDesc = document.getElementById('eraOverlayDesc');
+const eraCloseBtn = document.getElementById('eraCloseBtn');
+const eraSubtitle = document.getElementById('eraSubtitle');
+
+const langThumb = document.getElementById('langThumb');
+const langButtons = document.querySelectorAll('.lang-btn');
+
+totalCountEl.textContent = totalCount;
+
+function updateUILanguage(){
+  const t = I18N[currentLang];
+  document.getElementById('uiTitle').textContent = t.title;
+  document.getElementById('uiSubtitle').textContent = t.subtitle;
+  document.getElementById('uiFooter').textContent = t.footer;
+  guideBtn.textContent = t.btnGuide;
+  clearBtn.textContent = t.btnClear;
+  resetBtn.textContent = t.btnReset;
+  startTutorialBtn.textContent = t.introBtn;
+  eraSubtitle.textContent = t.eraBanner;
+  eraCloseBtn.textContent = t.eraContinue;
+
+  document.getElementById('introTitle').textContent = t.introTitle;
+  document.getElementById('introDesc').textContent = t.introDesc;
+  document.getElementById('introSteps').innerHTML = `
+    <div><span>1️⃣</span> <span>${t.introStep1}</span></div>
+    <div><span>2️⃣</span> <span>${t.introStep2}</span></div>
+    <div><span>3️⃣</span> <span>${t.introStep3}</span></div>
+  `;
+
+  applyTheme(currentTheme);
+  updateGuideText();
+}
+
+function moveLangThumb(targetBtn){
+  const offset = targetBtn.offsetLeft;
+  langThumb.style.transform = `translateX(${offset - 3}px)`;
+}
+
+function setLanguage(langCode, btnElement){
+  currentLang = langCode;
+  try {
+    localStorage.setItem('cosmo_lang_liquid', langCode);
+  } catch(e){}
+  langButtons.forEach(b => b.classList.remove('active'));
+  btnElement.classList.add('active');
+  moveLangThumb(btnElement);
+  updateUILanguage();
+  render();
+}
+
+langButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    haptic('tap');
+    setLanguage(btn.getAttribute('data-lang'), btn);
+  });
+});
+
+const initBtn = document.querySelector(`.lang-btn[data-lang="${currentLang}"]`);
+if(initBtn){
+  initBtn.classList.add('active');
+  setTimeout(() => moveLangThumb(initBtn), 40);
+}
+
+function saveProgress(){
+  try {
+    localStorage.setItem('cosmo_liquid_v7', JSON.stringify({
+      discovered: [...discovered],
+      unlockedEras: [...unlockedEras],
+      tutorialActive: tutorialActive
+    }));
+  } catch(e){}
+}
+
+function updateGuideText(){
+  const t = I18N[currentLang];
+  if(tutorialActive){
+    if(selection.length === 0){
+      labResult.className = 'lab-result guide';
+      labResult.textContent = t.step1;
+    } else if(selection.length === 1){
+      labResult.className = 'lab-result guide';
+      labResult.textContent = t.step2;
+    }
+  } else if(selection.length === 0 && !labResult.classList.contains('ok') && !labResult.classList.contains('hint')){
+    labResult.className = 'lab-result';
+    labResult.textContent = t.selectTwo;
+  }
+}
+
+function render(){
+  erasContainer.innerHTML = '';
+  discCountEl.textContent = discovered.size;
+  progressFill.style.width = Math.round(discovered.size/totalCount*100) + '%';
+
+  ERAS.forEach(era=>{
+    const ids = Object.keys(ELEMENTS).filter(id=>ELEMENTS[id].era===era.id);
+    const found = ids.filter(id=>discovered.has(id));
+    if(found.length===0 && era.id!==0) return;
+
+    const eraName = era[currentLang].name;
+    const block = document.createElement('div');
+    block.className='era';
+    block.innerHTML = `
+      <div class="era-head">
+        <span class="era-dot" style="background:${era.color}; color:${era.color}"></span>
+        <h2>${eraName}</h2>
+        <span class="count">${found.length}/${ids.length}</span>
+      </div>
+    `;
+
+    const grid = document.createElement('div');
+    grid.className='grid';
+
+    ids.forEach(id=>{
+      const el = ELEMENTS[id];
+      const elLang = el[currentLang];
+      const tile = document.createElement('div');
+      tile.id = 'tile-' + id;
+      if(discovered.has(id)){
+        let classes = 'tile';
+        if(id === lastDiscoveredId) classes += ' new-tile';
+        if(id === highlightedHintId) classes += ' hint-target';
+        if(tutorialActive && BASE_IDS.includes(id)) classes += ' tutorial-pulse';
+
+        tile.style.setProperty('--tile-accent', era.color);
+        tile.style.setProperty('--tile-accent-glow', era.glow);
+        tile.style.setProperty('--tile-accent-bg', currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.85)');
+
+        tile.className = classes;
+        tile.innerHTML = `<div class="badge" style="background:${era.color}">${el.glyph}</div><div class="name">${elLang.name}</div>`;
+        tile.addEventListener('click', (e)=>selectTile(id, e.currentTarget));
+        if(selection.includes(id)) tile.classList.add('selected');
+      } else {
+        tile.className='tile locked';
+        tile.innerHTML = `<div class="badge">?</div><div class="name">???</div>`;
+      }
+      grid.appendChild(tile);
+    });
+
+    block.appendChild(grid);
+    erasContainer.appendChild(block);
+  });
+
+  // Обновление слотов верстака
+  slotEls.forEach((slotEl, i)=>{
+    const id = selection[i];
+    if(id){
+      const el = ELEMENTS[id];
+      const era = ERAS.find(e => e.id === el.era);
+      slotEl.classList.add('filled');
+      slotEl.style.setProperty('--slot-color', era.color);
+      slotEl.style.setProperty('--slot-glow', era.glow);
+      slotEl.style.setProperty('--slot-bg', currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.8)');
+      slotEl.innerHTML = `<span class="glyph">${el.glyph}</span>`;
+    } else {
+      slotEl.classList.remove('filled');
+      slotEl.style.removeProperty('--slot-color');
+      slotEl.style.removeProperty('--slot-glow');
+      slotEl.style.removeProperty('--slot-bg');
+      slotEl.innerHTML = `<span class="glyph">?</span>`;
+    }
+  });
+
+  updateGuideText();
+}
+
+function flyBadge(startRect, endRect, glyph, color, onFinish){
+  const flyer = document.createElement('div');
+  flyer.className = 'fly-badge';
+  flyer.textContent = glyph;
+  flyer.style.background = color;
+  flyer.style.left = startRect.left + 'px';
+  flyer.style.top = startRect.top + 'px';
+  flyer.style.width = startRect.width + 'px';
+  flyer.style.height = startRect.height + 'px';
+  document.body.appendChild(flyer);
+
+  flyer.getBoundingClientRect();
+
+  const deltaX = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
+  const deltaY = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
+
+  flyer.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.9)`;
+
+  setTimeout(()=>{
+    flyer.style.opacity = '0';
+    setTimeout(()=>{
+      flyer.remove();
+      if(onFinish) onFinish();
+    }, 100);
+  }, 360);
+}
+
+function selectTile(id, tileElement){
+  haptic('tap');
+  if(selection.length >= 2) return;
+
+  if(highlightedHintId === id){
+    highlightedHintId = null;
+  }
+
+  const targetSlot = slotEls[selection.length];
+  const badgeEl = tileElement.querySelector('.badge');
+  const startRect = badgeEl.getBoundingClientRect();
+  const endRect = targetSlot.getBoundingClientRect();
+
+  selection.push(id);
+
+  flyBadge(startRect, endRect, ELEMENTS[id].glyph, getComputedStyle(badgeEl).backgroundColor, ()=>{
+    render();
+    if(selection.length === 2){
+      attemptCombine();
+    }
+  });
+}
+
+function getHintData(){
+  const t = I18N[currentLang];
+  for (const [a, b, res] of RECIPE_LIST) {
+    if (discovered.has(a) && discovered.has(b) && !discovered.has(res)) {
+      const hintSource = Math.random() > 0.5 ? a : b;
+      return {
+        id: hintSource,
+        text: `${t.hintPrefix}${ELEMENTS[hintSource][currentLang].name}${t.hintSuffix}`
+      };
+    }
+  }
+  return null;
+}
+
+function spawnEraParticles(color){
+  for(let i = 0; i < 36; i++){
+    const p = document.createElement('div');
+    p.className = 'era-particle';
+    p.style.background = color;
+    p.style.boxShadow = `0 0 12px ${color}`;
+    eraOverlay.appendChild(p);
+
+    const x = window.innerWidth / 2;
+    const y = window.innerHeight / 2;
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 80 + Math.random() * (window.innerWidth * 0.45);
+    const destX = Math.cos(angle) * distance;
+    const destY = Math.sin(angle) * distance;
+    const duration = 1.0 + Math.random() * 1.0;
+
+    p.animate([
+      { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+      { transform: `translate(${destX}px, ${destY}px) scale(0)`, opacity: 0 }
+    ], {
+      duration: duration * 1000,
+      easing: 'ease-out',
+      fill: 'forwards'
+    });
+
+    setTimeout(() => p.remove(), duration * 1000);
+  }
+}
+
+let particleInterval = null;
+
+function triggerEraCelebration(eraObj){
+  const eraLang = eraObj[currentLang];
+  document.documentElement.style.setProperty('--overlay-color', eraObj.color);
+  document.documentElement.style.setProperty('--overlay-glow', eraObj.glow);
+
+  eraBigBadge.style.background = eraObj.color;
+  eraBigBadge.textContent = eraObj.glyph;
+  eraBigBadge.style.boxShadow = `0 0 60px ${eraObj.glow}, 0 0 120px ${eraObj.glow}`;
+  
+  eraOverlayTitle.textContent = eraLang.name;
+  eraOverlayDesc.textContent = eraLang.desc;
+
+  eraOverlay.classList.add('active');
+  spawnEraParticles(eraObj.color);
+
+  clearInterval(particleInterval);
+  particleInterval = setInterval(() => {
+    if(!eraOverlay.classList.contains('active')) {
+      clearInterval(particleInterval);
+      return;
+    }
+    spawnEraParticles(eraObj.color);
+  }, 1300);
+}
+
+eraCloseBtn.addEventListener('click', ()=>{
+  haptic('tap');
+  eraOverlay.classList.remove('active');
+  clearInterval(particleInterval);
+});
+
+function attemptCombine(){
+  reactor.classList.add('combining');
+  const key = [...selection].sort().join('+');
+  const resultId = RECIPES[key];
+  const t = I18N[currentLang];
+
+  setTimeout(()=>{
+    reactor.classList.remove('combining');
+
+    if(resultId){
+      failStreak = 0;
+      highlightedHintId = null;
+      haptic('success');
+      const isFirstTime = !discovered.has(resultId);
+      discovered.add(resultId);
+      lastDiscoveredId = resultId;
+
+      if(tutorialActive){
+        tutorialActive = false;
+      }
+
+      const el = ELEMENTS[resultId];
+      const elLang = el[currentLang];
+      const era = ERAS.find(e => e.id === el.era);
+      document.documentElement.style.setProperty('--result-color', era.color);
+
+      let newlyUnlockedEra = null;
+      if(isFirstTime && !unlockedEras.has(el.era)){
+        unlockedEras.add(el.era);
+        newlyUnlockedEra = era;
+      }
+      saveProgress();
+
+      reactor.classList.add('success');
+      ring.classList.remove('animate');
+      void ring.offsetWidth;
+      ring.classList.add('animate');
+      reactorCore.textContent = el.glyph;
+
+      labResult.className = 'lab-result';
+      void labResult.offsetWidth;
+      labResult.className = 'lab-result ok';
+      labResult.textContent = isFirstTime 
+        ? `${t.discovered}${elLang.name}! ${elLang.fact}` 
+        : `${t.formedAgain}${elLang.name}.`;
+
+      render();
+
+      if(newlyUnlockedEra){
+        setTimeout(()=>{
+          triggerEraCelebration(newlyUnlockedEra);
+        }, 600);
+      }
+
+      setTimeout(()=>{
+        const targetTile = document.getElementById('tile-' + resultId);
+        if(targetTile){
+          const targetBadge = targetTile.querySelector('.badge');
+          flyBadge(reactorCore.getBoundingClientRect(), targetBadge.getBoundingClientRect(), el.glyph, era.color, ()=>{
+            reactor.classList.remove('success');
+            reactorCore.textContent = '+';
+            lastDiscoveredId = null;
+          });
+        } else {
+          reactor.classList.remove('success');
+          reactorCore.textContent = '+';
+        }
+      }, 400);
+
+    } else {
+      failStreak++;
+      haptic('error');
+      document.querySelector('.lab').classList.add('shake');
+      setTimeout(()=>document.querySelector('.lab').classList.remove('shake'), 350);
+
+      if (failStreak >= 5) {
+        const hint = getHintData();
+        if(hint){
+          highlightedHintId = hint.id;
+          labResult.className = 'lab-result hint';
+          labResult.textContent = hint.text;
+        } else {
+          labResult.className = 'lab-result bad';
+          labResult.textContent = t.tryOther;
+        }
+      } else {
+        labResult.className = 'lab-result bad';
+        labResult.textContent = t.noReact;
+      }
+    }
+
+    selection = [];
+    render();
+  }, 450);
+}
+
+clearBtn.addEventListener('click', ()=>{
+  haptic('tap');
+  selection = [];
+  highlightedHintId = null;
+  labResult.textContent = I18N[currentLang].selectTwo;
+  labResult.className = 'lab-result';
+  render();
+});
+
+guideBtn.addEventListener('click', ()=>{
+  haptic('tap');
+  tutorialActive = true;
+  introModal.classList.add('active');
+  render();
+});
+
+startTutorialBtn.addEventListener('click', ()=>{
+  haptic('tap');
+  introModal.classList.remove('active');
+  render();
+});
+
+let resetArmed = false;
+resetBtn.addEventListener('click', ()=>{
+  const t = I18N[currentLang];
+  haptic('tap');
+  if(!resetArmed){
+    resetArmed = true;
+    resetBtn.textContent = t.btnSure;
+    setTimeout(()=>{ resetArmed=false; resetBtn.textContent=t.btnReset; }, 3000);
+    return;
+  }
+  discovered = new Set(BASE_IDS);
+  unlockedEras = new Set([0]);
+  tutorialActive = true;
+  selection = [];
+  failStreak = 0;
+  highlightedHintId = null;
+  resetArmed = false;
+  resetBtn.textContent = t.btnReset;
+  saveProgress();
+  labResult.textContent = t.resetDone;
+  labResult.className = 'lab-result';
+  introModal.classList.add('active');
+  render();
+});
+
+if(tutorialActive && discovered.size === BASE_IDS.length){
+  introModal.classList.add('active');
+}
+
+applyTheme(currentTheme);
+updateUILanguage();
+render();
+</script>
+</body>
+</html>
